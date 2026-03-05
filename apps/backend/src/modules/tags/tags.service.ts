@@ -1,5 +1,5 @@
 import { prisma } from "@myfinance/db";
-import type { CreateTagInput, UpdateTagInput } from "./tags.schema.js";
+import type { CreateTagInput, UpdateTagInput } from "./tags.schema";
 
 export async function listTags(userId: string) {
   return prisma.tag.findMany({

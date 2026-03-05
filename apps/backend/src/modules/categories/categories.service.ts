@@ -2,7 +2,7 @@ import { prisma } from "@myfinance/db";
 import type {
   CreateCategoryInput,
   UpdateCategoryInput,
-} from "./categories.schema.js";
+} from "./categories.schema";
 
 export async function listCategories(
   userId: string,

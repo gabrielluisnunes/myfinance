@@ -1,11 +1,11 @@
 import type { FastifyInstance } from "fastify";
-import { authenticate } from "../../middlewares/authenticate.js";
-import { sendCreated, sendSuccess } from "../../utils/response.js";
+import { authenticate } from "../../middlewares/authenticate";
+import { sendCreated, sendSuccess } from "../../utils/response";
 import {
   createAccountSchema,
   createCreditCardSchema,
   updateAccountSchema,
-} from "./accounts.schema.js";
+} from "./accounts.schema";
 import {
   addCreditCard,
   createAccount,
@@ -13,7 +13,7 @@ import {
   getAccountById,
   listAccounts,
   updateAccount,
-} from "./accounts.service.js";
+} from "./accounts.service";
 
 export async function accountRoutes(app: FastifyInstance) {
   app.addHook("preHandler", authenticate);

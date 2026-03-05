@@ -1,5 +1,5 @@
 import { prisma } from "@myfinance/db";
-import type { UpdateUserInput } from "./users.schema.js";
+import type { UpdateUserInput } from "./users.schema";
 
 export async function getUserById(userId: string) {
   const user = await prisma.user.findUnique({

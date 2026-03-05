@@ -1,8 +1,8 @@
-import { prisma } from "@myfinance/db";
+import { Prisma, prisma } from "@myfinance/db";
 import type {
   CreateTransferInput,
   ListTransfersInput,
-} from "./transfers.schema.js";
+} from "./transfers.schema";
 
 export async function listTransfers(
   userId: string,
@@ -47,7 +47,7 @@ export async function createTransfer(
   userId: string,
   input: CreateTransferInput,
 ) {
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const [fromAccount, toAccount] = await Promise.all([
       tx.account.findFirst({ where: { id: input.fromAccountId, userId } }),
       tx.account.findFirst({ where: { id: input.toAccountId, userId } }),
@@ -94,7 +94,7 @@ export async function deleteTransfer(userId: string, transferId: string) {
 
   if (!transfer) throw { statusCode: 404, message: "Transfer not found" };
 
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     await tx.transfer.delete({ where: { id: transferId } });
 
     await tx.account.update({

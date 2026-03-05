@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
-import { sendCreated, sendSuccess } from "../../utils/response.js";
-import { loginSchema, registerSchema } from "./auth.schema.js";
-import { registerUser, validateCredentials } from "./auth.service.js";
+import { sendCreated, sendSuccess } from "../../utils/response";
+import { loginSchema, registerSchema } from "./auth.schema";
+import { registerUser, validateCredentials } from "./auth.service";
 
 export async function authRoutes(app: FastifyInstance) {
   app.post("/register", async (request, reply) => {

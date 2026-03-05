@@ -1,13 +1,13 @@
 import type { FastifyInstance } from "fastify";
-import { authenticate } from "../../middlewares/authenticate.js";
-import { sendCreated, sendSuccess } from "../../utils/response.js";
-import { createBudgetSchema, updateBudgetSchema } from "./budgets.schema.js";
+import { authenticate } from "../../middlewares/authenticate";
+import { sendCreated, sendSuccess } from "../../utils/response";
+import { createBudgetSchema, updateBudgetSchema } from "./budgets.schema";
 import {
   createBudget,
   deleteBudget,
   listBudgets,
   updateBudget,
-} from "./budgets.service.js";
+} from "./budgets.service";
 
 export async function budgetRoutes(app: FastifyInstance) {
   app.addHook("preHandler", authenticate);

@@ -1,8 +1,8 @@
 import type { FastifyInstance } from "fastify";
-import { authenticate } from "../../middlewares/authenticate.js";
-import { sendCreated, sendSuccess } from "../../utils/response.js";
-import { createTagSchema, updateTagSchema } from "./tags.schema.js";
-import { createTag, deleteTag, listTags, updateTag } from "./tags.service.js";
+import { authenticate } from "../../middlewares/authenticate";
+import { sendCreated, sendSuccess } from "../../utils/response";
+import { createTagSchema, updateTagSchema } from "./tags.schema";
+import { createTag, deleteTag, listTags, updateTag } from "./tags.service";
 
 export async function tagRoutes(app: FastifyInstance) {
   app.addHook("preHandler", authenticate);

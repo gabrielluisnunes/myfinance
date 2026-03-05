@@ -1,17 +1,17 @@
 import type { FastifyInstance } from "fastify";
-import { authenticate } from "../../middlewares/authenticate.js";
-import { sendCreated, sendSuccess } from "../../utils/response.js";
+import { authenticate } from "../../middlewares/authenticate";
+import { sendCreated, sendSuccess } from "../../utils/response";
 import {
   createCategorySchema,
   updateCategorySchema,
-} from "./categories.schema.js";
+} from "./categories.schema";
 import {
   createCategory,
   deleteCategory,
   getCategoryById,
   listCategories,
   updateCategory,
-} from "./categories.service.js";
+} from "./categories.service";
 
 export async function categoryRoutes(app: FastifyInstance) {
   app.addHook("preHandler", authenticate);

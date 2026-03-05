@@ -1,9 +1,9 @@
-import { prisma } from "@myfinance/db";
+import { Prisma, prisma } from "@myfinance/db";
 import type {
   CreateTransactionInput,
   ListTransactionsInput,
   UpdateTransactionInput,
-} from "./transactions.schema.js";
+} from "./transactions.schema";
 
 const transactionSelect = {
   id: true,
@@ -91,7 +91,7 @@ export async function createTransaction(
 ) {
   const { tagIds, ...data } = input;
 
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     const transaction = await tx.transaction.create({
       data: {
         userId,
@@ -136,7 +136,7 @@ export async function updateTransaction(
   const existing = await getTransactionById(userId, transactionId);
   const { tagIds, ...data } = input;
 
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     // Reverse previous balance effect if status was CONFIRMED
     if (existing.status === "CONFIRMED") {
       const reverseDelta =
@@ -186,7 +186,7 @@ export async function updateTransaction(
 export async function deleteTransaction(userId: string, transactionId: string) {
   const existing = await getTransactionById(userId, transactionId);
 
-  return prisma.$transaction(async (tx) => {
+  return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
     await tx.transaction.delete({ where: { id: transactionId } });
 
     if (existing.status === "CONFIRMED") {

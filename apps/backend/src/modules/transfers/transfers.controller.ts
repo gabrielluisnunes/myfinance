@@ -1,15 +1,15 @@
 import type { FastifyInstance } from "fastify";
-import { authenticate } from "../../middlewares/authenticate.js";
-import { sendCreated, sendSuccess } from "../../utils/response.js";
+import { authenticate } from "../../middlewares/authenticate";
+import { sendCreated, sendSuccess } from "../../utils/response";
 import {
   createTransferSchema,
   listTransfersSchema,
-} from "./transfers.schema.js";
+} from "./transfers.schema";
 import {
   createTransfer,
   deleteTransfer,
   listTransfers,
-} from "./transfers.service.js";
+} from "./transfers.service";
 
 export async function transferRoutes(app: FastifyInstance) {
   app.addHook("preHandler", authenticate);

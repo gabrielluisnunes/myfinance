@@ -1,8 +1,8 @@
 import type { FastifyInstance } from "fastify";
-import { authenticate } from "../../middlewares/authenticate.js";
-import { sendSuccess } from "../../utils/response.js";
-import { updateUserSchema } from "./users.schema.js";
-import { getUserById, updateUser } from "./users.service.js";
+import { authenticate } from "../../middlewares/authenticate";
+import { sendSuccess } from "../../utils/response";
+import { updateUserSchema } from "./users.schema";
+import { getUserById, updateUser } from "./users.service";
 
 export async function userRoutes(app: FastifyInstance) {
   app.get("/me", { preHandler: authenticate }, async (request, reply) => {

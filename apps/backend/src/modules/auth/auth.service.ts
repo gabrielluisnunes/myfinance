@@ -1,6 +1,6 @@
 import { prisma } from "@myfinance/db";
 import bcrypt from "bcryptjs";
-import type { LoginInput, RegisterInput } from "./auth.schema.js";
+import type { LoginInput, RegisterInput } from "./auth.schema";
 
 export async function registerUser(input: RegisterInput) {
   const existingUser = await prisma.user.findUnique({

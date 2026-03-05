@@ -3,7 +3,7 @@ import type {
   CreateAccountInput,
   CreateCreditCardInput,
   UpdateAccountInput,
-} from "./accounts.schema.js";
+} from "./accounts.schema";
 
 export async function listAccounts(userId: string) {
   return prisma.account.findMany({

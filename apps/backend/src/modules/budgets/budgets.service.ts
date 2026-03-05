@@ -1,5 +1,5 @@
 import { prisma } from "@myfinance/db";
-import type { CreateBudgetInput, UpdateBudgetInput } from "./budgets.schema.js";
+import type { CreateBudgetInput, UpdateBudgetInput } from "./budgets.schema";
 
 export async function listBudgets(userId: string, month: number, year: number) {
   const budgets = await prisma.budget.findMany({

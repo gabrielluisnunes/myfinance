@@ -1,15 +1,15 @@
 import fastify from "fastify";
-import { errorHandler } from "./middlewares/error-handler.js";
-import { accountRoutes } from "./modules/accounts/accounts.controller.js";
-import { authRoutes } from "./modules/auth/auth.controller.js";
-import { budgetRoutes } from "./modules/budgets/budgets.controller.js";
-import { categoryRoutes } from "./modules/categories/categories.controller.js";
-import { tagRoutes } from "./modules/tags/tags.controller.js";
-import { transactionRoutes } from "./modules/transactions/transactions.controller.js";
-import { transferRoutes } from "./modules/transfers/transfers.controller.js";
-import { userRoutes } from "./modules/users/users.controller.js";
-import { corsPlugin } from "./plugins/cors.js";
-import { jwtPlugin } from "./plugins/jwt.js";
+import { errorHandler } from "./middlewares/error-handler";
+import { accountRoutes } from "./modules/accounts/accounts.controller";
+import { authRoutes } from "./modules/auth/auth.controller";
+import { budgetRoutes } from "./modules/budgets/budgets.controller";
+import { categoryRoutes } from "./modules/categories/categories.controller";
+import { tagRoutes } from "./modules/tags/tags.controller";
+import { transactionRoutes } from "./modules/transactions/transactions.controller";
+import { transferRoutes } from "./modules/transfers/transfers.controller";
+import { userRoutes } from "./modules/users/users.controller";
+import { corsPlugin } from "./plugins/cors";
+import { jwtPlugin } from "./plugins/jwt";
 
 export function buildApp() {
   const app = fastify({
