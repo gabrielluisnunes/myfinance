@@ -1,7 +1,7 @@
 export const Colors = {
-  primary: "#6C63FF",
-  primaryDark: "#4F46E5",
-  primaryLight: "#A5B4FC",
+  primary: "#2B3AF7",
+  primaryDark: "#1E2EE0",
+  primaryLight: "#EEF2FF",
 
   success: "#10B981",
   successLight: "#D1FAE5",
@@ -15,24 +15,27 @@ export const Colors = {
   white: "#FFFFFF",
   black: "#000000",
 
-  gray50: "#F9FAFB",
-  gray100: "#F3F4F6",
-  gray200: "#E5E7EB",
-  gray300: "#D1D5DB",
-  gray400: "#9CA3AF",
+  gray50: "#F8F9FF",
+  gray100: "#F0F2FB",
+  gray200: "#E2E5EF",
+  gray300: "#C8CEDF",
+  gray400: "#9BA5B7",
   gray500: "#6B7280",
   gray600: "#4B5563",
   gray700: "#374151",
   gray800: "#1F2937",
   gray900: "#111827",
 
-  background: "#F3F4F6",
+  background: "#F5F6FA",
   surface: "#FFFFFF",
-  border: "#E5E7EB",
+  border: "#E2E5EF",
 
-  textPrimary: "#111827",
+  textPrimary: "#1C1F2E",
   textSecondary: "#6B7280",
-  textDisabled: "#9CA3AF",
+  textDisabled: "#9BA5B7",
+
+  heroBackground: "#E8ECFF",
+  iconBadge: "#EEF2FF",
 
   income: "#10B981",
   expense: "#EF4444",
