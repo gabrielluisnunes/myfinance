@@ -1,51 +1,52 @@
 # Database Design
 
-Database must prioritize consistency and scalability.
+Database: **PostgreSQL** | ORM: **Prisma**
 
 ---
 
 # Principles
 
-* normalized schema
-* clear relationships
-* indexed queries
+- normalized schema
+- clear relationships
+- indexed queries
+- monetary values as `Decimal(15,2)`
 
 ---
 
-# Example Entities
+# Entities
 
 ```
 User
-Workspace
-Lead
-FollowUp
-Activity
+ ├── Account (CHECKING | SAVINGS | CASH | CREDIT_CARD | INVESTMENT)
+ │    └── CreditCard
+ │         └── Invoice (OPEN | CLOSED | PAID)
+ ├── Category (INCOME | EXPENSE)
+ ├── Transaction → Account + Category + Invoice?
+ ├── Transfer → fromAccount + toAccount
+ ├── Budget (userId + categoryId + month + year)
+ ├── Tag
+ └── TransactionTag (pivot: Transaction ↔ Tag)
 ```
 
 ---
 
-# Relationships
+# Key Design Decisions
 
-Workspace → Users
-Workspace → Leads
-Lead → FollowUps
+- `Transfer` is a separate entity from `Transaction` — transfers are not income/expense
+- `Transaction` only has `INCOME` or `EXPENSE` types
+- `Invoice` is unique per `(creditCardId, month, year)`
+- `Budget` is unique per `(userId, categoryId, month, year)`
+- Soft-delete via `isActive` on `Account` and `Category`
 
 ---
 
 # Indexing
 
-Always index:
+Always indexed:
 
-* foreign keys
-* frequently queried fields
-
-Example:
-
-```
-email
-workspaceId
-createdAt
-```
+- all foreign keys
+- `email` on User
+- `date` on Transaction and Transfer
 
 ---
 
@@ -53,4 +54,8 @@ createdAt
 
 Never change production schema manually.
 
-Always use migrations.
+Always use Prisma migrations:
+
+```
+npx prisma migrate dev --name <migration-name>
+```

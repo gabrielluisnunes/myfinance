@@ -1,0 +1,14 @@
+{
+  "name": "@myfinance/frontend",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "echo \"Configure frontend dev script\"",
+    "build": "echo \"Configure frontend build script\"",
+    "lint": "echo \"Configure frontend lint script\""
+  },
+  "dependencies": {
+    "@myfinance/types": "*",
+    "@myfinance/utils": "*"
+  }
+}

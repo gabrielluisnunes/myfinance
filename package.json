@@ -1,0 +1,19 @@
+{
+  "name": "myfinance",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "db:migrate": "turbo run db:migrate --filter=@myfinance/db",
+    "db:generate": "turbo run db:generate --filter=@myfinance/db",
+    "db:studio": "turbo run db:studio --filter=@myfinance/db"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "@myfinance/backend",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "echo \"Configure backend dev script\"",
+    "build": "echo \"Configure backend build script\"",
+    "lint": "echo \"Configure backend lint script\""
+  },
+  "dependencies": {
+    "@myfinance/db": "*",
+    "@myfinance/types": "*",
+    "@myfinance/utils": "*"
+  }
+}
