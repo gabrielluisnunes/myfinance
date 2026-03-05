@@ -1,4 +1,4 @@
-import * as SecureStore from "expo-secure-store";
+import { storage } from "@/utils/storage";
 import { create } from "zustand";
 import { authService, type AuthUser } from "../services/auth.service";
 
@@ -18,7 +18,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   initialize: async () => {
     try {
-      const token = await SecureStore.getItemAsync("auth_token");
+      const token = await storage.getItem("auth_token");
       if (!token) {
         set({ isLoading: false });
         return;
@@ -26,7 +26,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       const user = await authService.me();
       set({ user, isAuthenticated: true, isLoading: false });
     } catch {
-      await SecureStore.deleteItemAsync("auth_token");
+      await storage.deleteItem("auth_token");
       set({ isLoading: false });
     }
   },

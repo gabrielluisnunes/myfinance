@@ -1,4 +1,4 @@
-import * as SecureStore from "expo-secure-store";
+import { storage } from "@/utils/storage";
 import { api } from "./api";
 
 export interface LoginPayload {
@@ -31,7 +31,7 @@ export const authService = {
       "/auth/login",
       payload,
     );
-    await SecureStore.setItemAsync("auth_token", data.data.token);
+    await storage.setItem("auth_token", data.data.token);
     return data.data;
   },
 
@@ -49,6 +49,6 @@ export const authService = {
   },
 
   async logout(): Promise<void> {
-    await SecureStore.deleteItemAsync("auth_token");
+    await storage.deleteItem("auth_token");
   },
 };
