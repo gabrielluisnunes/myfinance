@@ -3,13 +3,27 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "dev": "echo \"Configure backend dev script\"",
-    "build": "echo \"Configure backend build script\"",
-    "lint": "echo \"Configure backend lint script\""
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "lint": "eslint src --ext .ts"
   },
   "dependencies": {
+    "@fastify/cors": "^9.0.0",
+    "@fastify/helmet": "^11.0.0",
+    "@fastify/jwt": "^8.0.0",
+    "fastify-plugin": "^5.0.0",
     "@myfinance/db": "*",
     "@myfinance/types": "*",
-    "@myfinance/utils": "*"
+    "@myfinance/utils": "*",
+    "bcryptjs": "^2.4.3",
+    "fastify": "^5.0.0",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.5.0"
   }
 }
