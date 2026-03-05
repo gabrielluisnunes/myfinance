@@ -1,0 +1,29 @@
+{
+  "expo": {
+    "name": "MyFinance",
+    "slug": "myfinance",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "myfinance",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "dev.myfinance.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#6C63FF"
+      },
+      "package": "dev.myfinance.app"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "plugins": ["expo-router", "expo-secure-store", "expo-font"],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
