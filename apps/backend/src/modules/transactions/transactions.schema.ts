@@ -8,7 +8,7 @@ export const createTransactionSchema = z.object({
   status: z.enum(["PENDING", "CONFIRMED"]).default("CONFIRMED"),
   amount: z.number().positive(),
   description: z.string().min(1).max(255),
-  date: z.string().datetime(),
+  date: z.string().date(),
   notes: z.string().max(1000).optional(),
   tagIds: z.array(z.string().uuid()).optional(),
 });
@@ -19,7 +19,7 @@ export const updateTransactionSchema = z.object({
   status: z.enum(["PENDING", "CONFIRMED"]).optional(),
   amount: z.number().positive().optional(),
   description: z.string().min(1).max(255).optional(),
-  date: z.string().datetime().optional(),
+  date: z.string().date().optional(),
   notes: z.string().max(1000).nullable().optional(),
   tagIds: z.array(z.string().uuid()).optional(),
 });
@@ -31,8 +31,8 @@ export const listTransactionsSchema = z.object({
   status: z.enum(["PENDING", "CONFIRMED"]).optional(),
   accountId: z.string().uuid().optional(),
   categoryId: z.string().uuid().optional(),
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().optional(),
+  startDate: z.string().date().optional(),
+  endDate: z.string().date().optional(),
 });
 
 export type CreateTransactionInput = z.infer<typeof createTransactionSchema>;
