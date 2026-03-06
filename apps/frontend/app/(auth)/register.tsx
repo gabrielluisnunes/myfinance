@@ -55,15 +55,28 @@ export default function RegisterScreen() {
       return;
     }
     try {
-      const user = await authService.register({
+      const { user } = await authService.register({
         name: values.name,
         email: values.email,
         password: values.password,
       });
       setUser(user);
       router.replace("/(app)");
-    } catch {
-      setError("email", { message: "Este e-mail já está em uso" });
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response
+        ?.status;
+      if (status === 409) {
+        setError("email", { message: "Este e-mail já está em uso" });
+      } else if (!status) {
+        setError("email", {
+          message:
+            "Não foi possível conectar ao servidor. Verifique sua conexão.",
+        });
+      } else {
+        setError("email", {
+          message: "Ocorreu um erro ao criar a conta. Tente novamente.",
+        });
+      }
     }
   }
 

@@ -7,7 +7,8 @@ export async function authRoutes(app: FastifyInstance) {
   app.post("/register", async (request, reply) => {
     const input = registerSchema.parse(request.body);
     const user = await registerUser(input);
-    return sendCreated(reply, user);
+    const token = app.jwt.sign({ sub: user.id, email: user.email });
+    return sendCreated(reply, { token, user });
   });
 
   app.post("/login", async (request, reply) => {

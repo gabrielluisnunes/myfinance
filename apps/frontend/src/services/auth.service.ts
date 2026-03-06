@@ -35,11 +35,12 @@ export const authService = {
     return data.data;
   },
 
-  async register(payload: RegisterPayload): Promise<AuthUser> {
-    const { data } = await api.post<{ data: AuthUser }>(
+  async register(payload: RegisterPayload): Promise<AuthResponse> {
+    const { data } = await api.post<{ data: AuthResponse }>(
       "/auth/register",
       payload,
     );
+    await storage.setItem("auth_token", data.data.token);
     return data.data;
   },
 
