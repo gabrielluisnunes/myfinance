@@ -19,8 +19,8 @@ export async function listBudgets(userId: string, month: number, year: number) {
           type: "EXPENSE",
           status: "CONFIRMED",
           date: {
-            gte: new Date(year, month - 1, 1),
-            lt: new Date(year, month, 1),
+            gte: new Date(Date.UTC(year, month - 1, 1)),
+            lt: new Date(Date.UTC(year, month, 1)),
           },
         },
         _sum: { amount: true },

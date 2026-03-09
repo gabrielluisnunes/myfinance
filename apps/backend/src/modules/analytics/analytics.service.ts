@@ -38,21 +38,20 @@ export interface MonthlyTrendItem {
   net: number;
 }
 
-function toLocalMidnight(dateStr: string, end = false): Date {
+function toUTCMidnight(dateStr: string, end = false): Date {
   const [y, m, d] = dateStr.split("-").map(Number);
   if (end) {
-    // End of day on local date → use next day midnight UTC offset to cover full day
-    return new Date(y, m - 1, d, 23, 59, 59, 999);
+    return new Date(Date.UTC(y, m - 1, d, 23, 59, 59, 999));
   }
-  return new Date(y, m - 1, d, 0, 0, 0, 0);
+  return new Date(Date.UTC(y, m - 1, d, 0, 0, 0, 0));
 }
 
 async function getPeriodSummary(
   userId: string,
   range: DateRange,
 ): Promise<PeriodSummary> {
-  const gte = toLocalMidnight(range.startDate, false);
-  const lte = toLocalMidnight(range.endDate, true);
+  const gte = toUTCMidnight(range.startDate, false);
+  const lte = toUTCMidnight(range.endDate, true);
 
   // Aggregate income and expenses by type
   const typeTotals = await prisma.transaction.groupBy({
@@ -148,8 +147,8 @@ export async function getMonthlyTrend(
   userId: string,
   year: number,
 ): Promise<MonthlyTrendItem[]> {
-  const gte = new Date(year, 0, 1, 0, 0, 0);
-  const lte = new Date(year, 11, 31, 23, 59, 59, 999);
+  const gte = new Date(Date.UTC(year, 0, 1, 0, 0, 0));
+  const lte = new Date(Date.UTC(year, 11, 31, 23, 59, 59, 999));
 
   const rows = await prisma.transaction.findMany({
     where: {
@@ -166,7 +165,7 @@ export async function getMonthlyTrend(
   }
 
   for (const row of rows) {
-    const m = row.date.getMonth() + 1;
+    const m = row.date.getUTCMonth() + 1;
     const entry = monthMap.get(m)!;
     const amt = Number(row.amount);
     if (row.type === "INCOME") entry.income += amt;
