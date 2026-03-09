@@ -6,7 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -66,6 +66,18 @@ export default function NewTransactionScreen() {
   const [txType, setTxType] = useState<TransactionType>(
     initialType === "INCOME" ? "INCOME" : "EXPENSE",
   );
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null,
+  );
+
+  // Re-sync type whenever the route param changes (screen may be cached)
+  useEffect(() => {
+    if (initialType === "INCOME" || initialType === "EXPENSE") {
+      setTxType(initialType);
+      setSelectedCategoryId(null);
+    }
+  }, [initialType]);
+
   // cents-based amount: 100 = R$ 1,00
   const [amountCents, setAmountCents] = useState(0);
 
@@ -80,9 +92,6 @@ export default function NewTransactionScreen() {
     const digits = raw.replace(/\D/g, "");
     setAmountCents(digits === "" ? 0 : parseInt(digits, 10));
   }
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
-    null,
-  );
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
