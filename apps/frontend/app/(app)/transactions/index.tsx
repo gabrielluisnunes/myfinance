@@ -72,6 +72,24 @@ const pad = (n: number) => String(n).padStart(2, "0");
 const fmtDate = (d: Date) =>
   `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 
+const SHORT_MONTHS = [
+  "jan",
+  "fev",
+  "mar",
+  "abr",
+  "mai",
+  "jun",
+  "jul",
+  "ago",
+  "set",
+  "out",
+  "nov",
+  "dez",
+];
+function fmtShort(d: Date) {
+  return `${pad(d.getDate())} ${SHORT_MONTHS[d.getMonth()]}`;
+}
+
 function getPeriodRanges(period: Period) {
   const now = new Date();
 
@@ -93,7 +111,8 @@ function getPeriodRanges(period: Period) {
       budgetYear: now.getFullYear(),
       periodLabel: "semana passada",
       currentLabel: "esta semana",
-      showBudgets: true,
+      weekRangeLabel: `${fmtShort(mon)} — ${fmtShort(sun)}`,
+      showBudgets: false,
     };
   }
 
@@ -118,6 +137,7 @@ function getPeriodRanges(period: Period) {
       budgetYear: year,
       periodLabel: "mês passado",
       currentLabel: "este mês",
+      weekRangeLabel: null as string | null,
       showBudgets: true,
     };
   }
@@ -130,8 +150,9 @@ function getPeriodRanges(period: Period) {
     budgetMonth: now.getMonth() + 1,
     budgetYear: year,
     periodLabel: "ano passado",
-    currentLabel: "este ano",
-    showBudgets: true,
+    currentLabel: `${year}`,
+    weekRangeLabel: null as string | null,
+    showBudgets: false,
   };
 }
 
@@ -333,13 +354,86 @@ export default function ReportsScreen() {
         {/* ── Summary Card ─────────────────────────── */}
         <View style={styles.summaryCard}>
           <Text style={styles.summaryLabel}>
-            Total Spent: {ranges.currentLabel}
+            {period === "yearly"
+              ? `Resumo ${ranges.currentLabel}`
+              : `Total Gasto: ${ranges.currentLabel}`}
           </Text>
+          {ranges.weekRangeLabel ? (
+            <Text style={styles.weekRangeLabel}>{ranges.weekRangeLabel}</Text>
+          ) : null}
           {isLoading ? (
             <ActivityIndicator
               color={Colors.primary}
               style={{ marginVertical: 16 }}
             />
+          ) : period === "yearly" && summary ? (
+            <>
+              <View style={styles.yearlyStats}>
+                <View style={styles.yearlyStat}>
+                  <Text style={styles.yearlyStatLabel}>Receitas</Text>
+                  <Text
+                    style={[styles.yearlyStatValue, { color: Colors.success }]}
+                  >
+                    {formatCurrency(summary.current.totalIncome)}
+                  </Text>
+                </View>
+                <View style={styles.yearlyStatDivider} />
+                <View style={styles.yearlyStat}>
+                  <Text style={styles.yearlyStatLabel}>Despesas</Text>
+                  <Text
+                    style={[styles.yearlyStatValue, { color: Colors.danger }]}
+                  >
+                    {formatCurrency(totalSpent)}
+                  </Text>
+                </View>
+                <View style={styles.yearlyStatDivider} />
+                <View style={styles.yearlyStat}>
+                  <Text style={styles.yearlyStatLabel}>Saldo</Text>
+                  <Text
+                    style={[
+                      styles.yearlyStatValue,
+                      {
+                        color:
+                          summary.current.net >= 0
+                            ? Colors.success
+                            : Colors.danger,
+                      },
+                    ]}
+                  >
+                    {formatCurrency(summary.current.net)}
+                  </Text>
+                </View>
+              </View>
+              {pctChange !== null ? (
+                <View
+                  style={[
+                    styles.changeBadge,
+                    {
+                      backgroundColor:
+                        pctChange > 0
+                          ? Colors.dangerLight
+                          : Colors.successLight,
+                      marginTop: Spacing.sm,
+                    },
+                  ]}
+                >
+                  <Ionicons
+                    name={pctChange > 0 ? "trending-up" : "trending-down"}
+                    size={13}
+                    color={pctChange > 0 ? Colors.danger : Colors.success}
+                  />
+                  <Text
+                    style={[
+                      styles.changeBadgeText,
+                      { color: pctChange > 0 ? Colors.danger : Colors.success },
+                    ]}
+                  >
+                    {pctChange > 0 ? "+" : ""}
+                    {pctChange.toFixed(1)}% vs {ranges.periodLabel}
+                  </Text>
+                </View>
+              ) : null}
+            </>
           ) : (
             <>
               <Text style={styles.summaryAmount}>
@@ -681,11 +775,45 @@ const styles = StyleSheet.create({
     textTransform: "uppercase",
     marginBottom: Spacing.sm,
   },
+  weekRangeLabel: {
+    fontSize: Typography.fontSizes.sm,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.sm,
+    marginTop: -4,
+  },
   summaryAmount: {
     fontSize: 36,
     fontWeight: Typography.fontWeights.bold,
     color: Colors.textPrimary,
     marginBottom: Spacing.md,
+  },
+  // Yearly 3-stat row
+  yearlyStats: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    marginVertical: Spacing.md,
+  },
+  yearlyStat: {
+    flex: 1,
+    alignItems: "center",
+    gap: 4,
+  },
+  yearlyStatLabel: {
+    fontSize: Typography.fontSizes.xs,
+    color: Colors.textSecondary,
+    fontWeight: Typography.fontWeights.semibold,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  yearlyStatValue: {
+    fontSize: Typography.fontSizes.lg,
+    fontWeight: Typography.fontWeights.bold,
+  },
+  yearlyStatDivider: {
+    width: 1,
+    height: 36,
+    backgroundColor: Colors.border,
   },
   changeBadge: {
     flexDirection: "row",
