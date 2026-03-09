@@ -182,6 +182,10 @@ export function Sidebar({ visible, onClose }: SidebarProps) {
                   styles.quickActionBtn,
                   { backgroundColor: Colors.successLight },
                 ]}
+                onPress={() => {
+                  router.push("/(app)/transaction/new?type=INCOME");
+                  onClose();
+                }}
               >
                 <Ionicons name="add" size={22} color={Colors.success} />
               </TouchableOpacity>
@@ -193,6 +197,10 @@ export function Sidebar({ visible, onClose }: SidebarProps) {
                   styles.quickActionBtn,
                   { backgroundColor: Colors.dangerLight },
                 ]}
+                onPress={() => {
+                  router.push("/(app)/transaction/new?type=EXPENSE");
+                  onClose();
+                }}
               >
                 <Ionicons name="remove" size={22} color={Colors.danger} />
               </TouchableOpacity>
@@ -204,6 +212,10 @@ export function Sidebar({ visible, onClose }: SidebarProps) {
                   styles.quickActionBtn,
                   { backgroundColor: Colors.primaryLight },
                 ]}
+                onPress={() => {
+                  router.push("/(app)/transaction/new");
+                  onClose();
+                }}
               >
                 <Ionicons
                   name="swap-horizontal"

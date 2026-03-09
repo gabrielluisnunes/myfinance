@@ -84,6 +84,10 @@ function AppLayoutInner() {
         />
         {/* Hidden from tab bar — accessible via sidebar/navigation */}
         <Tabs.Screen name="accounts/index" options={{ href: null }} />
+        <Tabs.Screen
+          name="transaction/new"
+          options={{ href: null, tabBarStyle: { display: "none" } }}
+        />
       </Tabs>
 
       <Sidebar visible={isOpen} onClose={close} />

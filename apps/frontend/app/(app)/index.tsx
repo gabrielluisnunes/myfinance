@@ -1,4 +1,12 @@
-﻿import { Ionicons } from "@expo/vector-icons";
+﻿import { Colors, Radius, Spacing, Typography } from "@/constants/theme";
+import { useSidebar } from "@/contexts/sidebar.context";
+import { accountsService } from "@/services/accounts.service";
+import {
+  transactionsService,
+  type Transaction,
+} from "@/services/transactions.service";
+import { formatCurrency } from "@/utils/format";
+import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import {
@@ -9,14 +17,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { accountsService } from "@/services/accounts.service";
-import {
-  transactionsService,
-  type Transaction,
-} from "@/services/transactions.service";
-import { useSidebar } from "@/contexts/sidebar.context";
-import { Colors, Radius, Spacing, Typography } from "@/constants/theme";
-import { formatCurrency } from "@/utils/format";
 
 type IoniconName = React.ComponentProps<typeof Ionicons>["name"];
 
@@ -37,7 +37,7 @@ function formatTxDate(dateStr: string): string {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const diffDays = Math.round(
-    (today.getTime() - txDay.getTime()) / (1000 * 60 * 60 * 24)
+    (today.getTime() - txDay.getTime()) / (1000 * 60 * 60 * 24),
   );
   if (diffDays === 0) return "Today";
   if (diffDays === 1) return "Yesterday";
@@ -46,12 +46,16 @@ function formatTxDate(dateStr: string): string {
 
 function getCategoryIcon(category: Transaction["category"]): IoniconName {
   const key = (category.icon || category.name).toLowerCase();
-  if (key.includes("food") || key.includes("restaurant")) return "restaurant-outline";
+  if (key.includes("food") || key.includes("restaurant"))
+    return "restaurant-outline";
   if (key.includes("transport") || key.includes("bus")) return "bus-outline";
-  if (key.includes("entertain") || key.includes("netflix")) return "film-outline";
-  if (key.includes("health") || key.includes("medical")) return "medkit-outline";
+  if (key.includes("entertain") || key.includes("netflix"))
+    return "film-outline";
+  if (key.includes("health") || key.includes("medical"))
+    return "medkit-outline";
   if (key.includes("shopping")) return "bag-outline";
-  if (key.includes("salary") || key.includes("income")) return "briefcase-outline";
+  if (key.includes("salary") || key.includes("income"))
+    return "briefcase-outline";
   if (key.includes("bill") || key.includes("util")) return "flash-outline";
   if (key.includes("education")) return "book-outline";
   if (key.includes("transfer")) return "swap-horizontal-outline";
@@ -70,8 +74,7 @@ export default function DashboardScreen() {
 
   const { data: monthlyTxs } = useQuery({
     queryKey: ["transactions", "monthly", year, month],
-    queryFn: () =>
-      transactionsService.list({ startDate, endDate, limit: 500 }),
+    queryFn: () => transactionsService.list({ startDate, endDate, limit: 500 }),
   });
 
   const { data: recentTxs } = useQuery({
@@ -118,7 +121,9 @@ export default function DashboardScreen() {
         {/* Total Balance Card */}
         <View style={styles.balanceCard}>
           <Text style={styles.balanceLabel}>TOTAL BALANCE</Text>
-          <Text style={styles.balanceAmount}>{formatCurrency(totalBalance)}</Text>
+          <Text style={styles.balanceAmount}>
+            {formatCurrency(totalBalance)}
+          </Text>
           <View
             style={[
               styles.balanceBadge,
@@ -149,7 +154,10 @@ export default function DashboardScreen() {
         <View style={styles.monthlyRow}>
           <View style={styles.monthlyCard}>
             <View
-              style={[styles.monthlyIcon, { backgroundColor: Colors.successLight }]}
+              style={[
+                styles.monthlyIcon,
+                { backgroundColor: Colors.successLight },
+              ]}
             >
               <Ionicons name="arrow-up" size={18} color={Colors.success} />
             </View>
@@ -160,7 +168,10 @@ export default function DashboardScreen() {
           </View>
           <View style={styles.monthlyCard}>
             <View
-              style={[styles.monthlyIcon, { backgroundColor: Colors.dangerLight }]}
+              style={[
+                styles.monthlyIcon,
+                { backgroundColor: Colors.dangerLight },
+              ]}
             >
               <Ionicons name="arrow-down" size={18} color={Colors.danger} />
             </View>
@@ -175,14 +186,20 @@ export default function DashboardScreen() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>Recent Transactions</Text>
-            <TouchableOpacity onPress={() => router.push("/transactions" as never)}>
+            <TouchableOpacity
+              onPress={() => router.push("/transactions" as never)}
+            >
               <Text style={styles.sectionLink}>View all</Text>
             </TouchableOpacity>
           </View>
 
-          {(!recentTxs?.data || recentTxs.data.length === 0) ? (
+          {!recentTxs?.data || recentTxs.data.length === 0 ? (
             <View style={styles.empty}>
-              <Ionicons name="receipt-outline" size={40} color={Colors.gray300} />
+              <Ionicons
+                name="receipt-outline"
+                size={40}
+                color={Colors.gray300}
+              />
               <Text style={styles.emptyText}>No transactions yet</Text>
             </View>
           ) : (
@@ -193,7 +210,9 @@ export default function DashboardScreen() {
               const iconColor = tx.category.color || Colors.primary;
               return (
                 <View key={tx.id} style={styles.txItem}>
-                  <View style={[styles.txIconCircle, { backgroundColor: bgColor }]}>
+                  <View
+                    style={[styles.txIconCircle, { backgroundColor: bgColor }]}
+                  >
                     <Ionicons
                       name={getCategoryIcon(tx.category)}
                       size={18}
@@ -212,7 +231,9 @@ export default function DashboardScreen() {
                         styles.txAmount,
                         {
                           color:
-                            tx.type === "INCOME" ? Colors.success : Colors.danger,
+                            tx.type === "INCOME"
+                              ? Colors.success
+                              : Colors.danger,
                         },
                       ]}
                     >
@@ -231,7 +252,11 @@ export default function DashboardScreen() {
       </ScrollView>
 
       {/* FAB */}
-      <TouchableOpacity style={styles.fab} activeOpacity={0.85}>
+      <TouchableOpacity
+        style={styles.fab}
+        activeOpacity={0.85}
+        onPress={() => router.push("/(app)/transaction/new")}
+      >
         <Ionicons name="add" size={28} color={Colors.white} />
       </TouchableOpacity>
     </SafeAreaView>
