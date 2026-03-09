@@ -31,6 +31,7 @@ const ICON_MAP: Array<[string, IoniconName]> = [
   ["home", "home-outline"],
   ["salary", "briefcase-outline"],
   ["work", "briefcase-outline"],
+  ["freelance", "laptop-outline"],
   ["shopping", "bag-outline"],
   ["transport", "car-outline"],
   ["car", "car-outline"],
@@ -41,10 +42,12 @@ const ICON_MAP: Array<[string, IoniconName]> = [
   ["entertainment", "film-outline"],
   ["bills", "flash-outline"],
   ["utilities", "flash-outline"],
+  ["gift", "gift-outline"],
   ["transfer", "swap-horizontal-outline"],
   ["savings", "wallet-outline"],
   ["investment", "trending-up-outline"],
   ["income", "trending-up-outline"],
+  ["other", "pricetag-outline"],
 ];
 
 function getCategoryIcon(name: string, icon: string): IoniconName {
@@ -196,23 +199,63 @@ export default function NewTransactionScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Amount */}
-        <View style={styles.amountSection}>
-          <Text style={styles.amountLabel}>AMOUNT</Text>
+        <View
+          style={[
+            styles.amountCard,
+            {
+              backgroundColor:
+                txType === "INCOME" ? Colors.successLight : Colors.dangerLight,
+              borderColor: txType === "INCOME" ? Colors.success : Colors.danger,
+            },
+          ]}
+        >
+          <Text
+            style={[
+              styles.amountLabel,
+              {
+                color: txType === "INCOME" ? Colors.success : Colors.danger,
+              },
+            ]}
+          >
+            {txType === "INCOME" ? "↑ INCOME AMOUNT" : "↓ EXPENSE AMOUNT"}
+          </Text>
           <View style={styles.amountRow}>
-            <Text style={styles.amountCurrency}>$</Text>
+            <Text
+              style={[
+                styles.amountCurrency,
+                {
+                  color: txType === "INCOME" ? Colors.success : Colors.danger,
+                },
+              ]}
+            >
+              R$
+            </Text>
             <TextInput
-              style={styles.amountInput}
+              style={[
+                styles.amountInput,
+                {
+                  color: txType === "INCOME" ? Colors.success : Colors.danger,
+                },
+              ]}
               value={amountStr}
               onChangeText={(v) => setAmountStr(v.replace(/[^0-9.]/g, ""))}
               keyboardType="decimal-pad"
+              selectTextOnFocus
               onFocus={() => {
                 if (amountStr === "0.00") setAmountStr("");
               }}
               onBlur={() => {
                 if (!amountStr) setAmountStr("0.00");
               }}
+              placeholder="0.00"
+              placeholderTextColor={
+                txType === "INCOME"
+                  ? `${Colors.success}66`
+                  : `${Colors.danger}66`
+              }
             />
           </View>
+          <Text style={styles.amountHint}>Toque para editar o valor</Text>
         </View>
 
         {/* Categories */}
@@ -413,9 +456,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingBottom: 24,
   },
-  amountSection: {
-    alignItems: "center",
+  amountCard: {
+    marginTop: Spacing.md,
+    borderRadius: Radius.xl,
+    borderWidth: 1.5,
     paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.lg,
+    alignItems: "center",
+  },
+  amountHint: {
+    fontSize: Typography.fontSizes.xs,
+    color: Colors.textSecondary,
+    marginTop: 6,
+    opacity: 0.7,
   },
   amountLabel: {
     fontSize: Typography.fontSizes.xs,
