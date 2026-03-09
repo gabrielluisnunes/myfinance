@@ -5,8 +5,8 @@ import { transactionsService } from "@/services/transactions.service";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -77,6 +77,17 @@ export default function NewTransactionScreen() {
       setSelectedCategoryId(null);
     }
   }, [initialType]);
+
+  // Reset entire form every time the screen gains focus so stale values never show
+  useFocusEffect(
+    useCallback(() => {
+      setAmountCents(0);
+      setDate(new Date());
+      setDescription("");
+      setErrorMsg(null);
+      setSelectedCategoryId(null);
+    }, []),
+  );
 
   // cents-based amount: 100 = R$ 1,00
   const [amountCents, setAmountCents] = useState(0);
