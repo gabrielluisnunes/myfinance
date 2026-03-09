@@ -1,6 +1,5 @@
 import { Colors, Radius, Spacing, Typography } from "@/constants/theme";
 import { budgetsService } from "@/services/budgets.service";
-import { transactionsService } from "@/services/transactions.service";
 import { formatCurrency } from "@/utils/format";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
@@ -191,30 +190,86 @@ function DonutChart({
   );
 }
 
+// ─── Monthly Trend Chart ─────────────────────────────────────────────────────
+const MONTH_LABELS = [
+  "J",
+  "F",
+  "M",
+  "A",
+  "M",
+  "J",
+  "J",
+  "A",
+  "S",
+  "O",
+  "N",
+  "D",
+];
+const BAR_MAX_H = 84;
+
+function MonthlyTrendChart({ data }: { data: MonthlyTrendItem[] }) {
+  const maxVal = Math.max(1, ...data.flatMap((d) => [d.income, d.expenses]));
+  return (
+    <View style={styles.trendChart}>
+      {MONTH_LABELS.map((label, i) => {
+        const item = data[i] ?? {
+          income: 0,
+          expenses: 0,
+          net: 0,
+          month: i + 1,
+        };
+        const incomeH = Math.max(2, (item.income / maxVal) * BAR_MAX_H);
+        const expH = Math.max(2, (item.expenses / maxVal) * BAR_MAX_H);
+        return (
+          <View key={i} style={styles.trendBarGroup}>
+            <View style={styles.trendBars}>
+              <View
+                style={[
+                  styles.trendBar,
+                  { height: incomeH, backgroundColor: Colors.success },
+                ]}
+              />
+              <View
+                style={[
+                  styles.trendBar,
+                  { height: expH, backgroundColor: Colors.danger },
+                ]}
+              />
+            </View>
+            <Text style={styles.trendLabel}>{label}</Text>
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
 // ─── Main Screen ─────────────────────────────────────────────────────────────
 export default function ReportsScreen() {
   const router = useRouter();
   const [period, setPeriod] = useState<Period>("monthly");
   const ranges = useMemo(() => getPeriodRanges(period), [period]);
 
-  const { data: currentData, isLoading } = useQuery({
-    queryKey: ["txs", "reports", "cur", ranges.current.startDate],
+  const { data: summary, isLoading } = useQuery({
+    queryKey: [
+      "analytics",
+      "summary",
+      ranges.current.startDate,
+      ranges.previous.startDate,
+    ],
     queryFn: () =>
-      transactionsService.list({
-        startDate: ranges.current.startDate,
-        endDate: ranges.current.endDate,
-        limit: 500,
-      }),
+      analyticsService.getSummary(
+        ranges.current.startDate,
+        ranges.current.endDate,
+        ranges.previous.startDate,
+        ranges.previous.endDate,
+      ),
   });
 
-  const { data: prevData } = useQuery({
-    queryKey: ["txs", "reports", "prev", ranges.previous.startDate],
-    queryFn: () =>
-      transactionsService.list({
-        startDate: ranges.previous.startDate,
-        endDate: ranges.previous.endDate,
-        limit: 500,
-      }),
+  const { data: trend = [] } = useQuery({
+    queryKey: ["analytics", "trend", new Date().getFullYear()],
+    queryFn: () => analyticsService.getMonthlyTrend(new Date().getFullYear()),
+    enabled: period === "yearly",
   });
 
   const { data: budgets = [], isLoading: loadingBudgets } = useQuery({
@@ -223,50 +278,14 @@ export default function ReportsScreen() {
     enabled: ranges.showBudgets,
   });
 
-  // ── Aggregations ────────────────────────────────
-  const curTxs = currentData?.data ?? [];
-  const expenses = curTxs.filter((tx) => tx.type === "EXPENSE");
-  const totalSpent = expenses.reduce((s, tx) => s + parseFloat(tx.amount), 0);
-
-  const prevExpenses = (prevData?.data ?? []).filter(
-    (tx) => tx.type === "EXPENSE",
+  const totalSpent = summary?.current.totalExpenses ?? 0;
+  const pctChange = summary?.pctChange ?? null;
+  const categories = (summary?.current.categoryBreakdown ?? []).map(
+    (cat, i) => ({
+      ...cat,
+      color: cat.categoryColor || CHART_COLORS[i % CHART_COLORS.length],
+    }),
   );
-  const prevTotalSpent = prevExpenses.reduce(
-    (s, tx) => s + parseFloat(tx.amount),
-    0,
-  );
-
-  const pctChange =
-    prevTotalSpent > 0
-      ? ((totalSpent - prevTotalSpent) / prevTotalSpent) * 100
-      : null;
-
-  // Category breakdown
-  const catMap = new Map<
-    string,
-    { name: string; icon: string; color: string; total: number }
-  >();
-  for (const tx of expenses) {
-    const existing = catMap.get(tx.category.id);
-    if (existing) {
-      existing.total += parseFloat(tx.amount);
-    } else {
-      catMap.set(tx.category.id, {
-        name: tx.category.name,
-        icon: tx.category.icon,
-        color: tx.category.color,
-        total: parseFloat(tx.amount),
-      });
-    }
-  }
-
-  const categories = Array.from(catMap.values())
-    .sort((a, b) => b.total - a.total)
-    .map((c, i) => ({
-      ...c,
-      color: c.color || CHART_COLORS[i % CHART_COLORS.length],
-      pct: totalSpent > 0 ? (c.total / totalSpent) * 100 : 0,
-    }));
 
   // ── Budget stats ─────────────────────────────────
   const totalBudgeted = budgets.reduce((s, b) => s + parseFloat(b.amount), 0);
@@ -374,8 +393,27 @@ export default function ReportsScreen() {
           )}
         </View>
 
-        {/* ── Donut Chart ───────────────────────────── */}
-        {!isLoading && (
+        {/* ── Chart ─────────────────────────────────── */}
+        {!isLoading && period === "yearly" ? (
+          <View style={[styles.section, { marginBottom: Spacing.md }]}>
+            <Text style={styles.sectionTitle}>Monthly Trend</Text>
+            <MonthlyTrendChart data={trend} />
+            <View style={styles.trendLegend}>
+              <View style={styles.trendLegendItem}>
+                <View
+                  style={[styles.trendDot, { backgroundColor: Colors.success }]}
+                />
+                <Text style={styles.trendLegendLabel}>Income</Text>
+              </View>
+              <View style={styles.trendLegendItem}>
+                <View
+                  style={[styles.trendDot, { backgroundColor: Colors.danger }]}
+                />
+                <Text style={styles.trendLegendLabel}>Expenses</Text>
+              </View>
+            </View>
+          </View>
+        ) : !isLoading ? (
           <View style={styles.chartWrapper}>
             <DonutChart
               segments={categories.map((c) => ({
@@ -394,7 +432,7 @@ export default function ReportsScreen() {
               </View>
             </View>
           </View>
-        )}
+        ) : null}
 
         {/* ── Category Breakdown ────────────────────── */}
         <View style={styles.section}>
@@ -415,7 +453,7 @@ export default function ReportsScreen() {
             </View>
           ) : (
             categories.map((cat, i) => (
-              <View key={`${cat.name}-${i}`} style={styles.catItem}>
+              <View key={`${cat.categoryId}-${i}`} style={styles.catItem}>
                 <View
                   style={[
                     styles.catIcon,
@@ -423,13 +461,13 @@ export default function ReportsScreen() {
                   ]}
                 >
                   <Ionicons
-                    name={getCategoryIcon(cat.name, cat.icon)}
+                    name={getCategoryIcon(cat.categoryName, cat.categoryIcon)}
                     size={18}
                     color={cat.color}
                   />
                 </View>
                 <View style={styles.catInfo}>
-                  <Text style={styles.catName}>{cat.name}</Text>
+                  <Text style={styles.catName}>{cat.categoryName}</Text>
                   <Text style={styles.catPct}>
                     {cat.pct.toFixed(0)}% of spending
                   </Text>
@@ -806,6 +844,59 @@ const styles = StyleSheet.create({
     color: Colors.danger,
     marginTop: 4,
     fontWeight: Typography.fontWeights.medium,
+  },
+
+  // Monthly Trend Chart
+  trendChart: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    height: 108,
+    gap: 1,
+    paddingBottom: Spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+    marginBottom: Spacing.sm,
+  },
+  trendBarGroup: {
+    flex: 1,
+    alignItems: "center",
+    gap: 2,
+  },
+  trendBars: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 1,
+    height: 84,
+  },
+  trendBar: {
+    flex: 1,
+    borderRadius: 2,
+    minHeight: 2,
+  },
+  trendLabel: {
+    fontSize: 8,
+    color: Colors.textSecondary,
+    textAlign: "center",
+  },
+  trendLegend: {
+    flexDirection: "row",
+    justifyContent: "center",
+    gap: Spacing.lg,
+    marginTop: Spacing.sm,
+  },
+  trendLegendItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+  },
+  trendDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  trendLegendLabel: {
+    fontSize: Typography.fontSizes.xs,
+    color: Colors.textSecondary,
   },
 
   // Empty states

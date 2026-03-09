@@ -1,6 +1,7 @@
 import fastify from "fastify";
 import { errorHandler } from "./middlewares/error-handler";
 import { accountRoutes } from "./modules/accounts/accounts.controller";
+import { analyticsRoutes } from "./modules/analytics/analytics.controller";
 import { authRoutes } from "./modules/auth/auth.controller";
 import { budgetRoutes } from "./modules/budgets/budgets.controller";
 import { categoryRoutes } from "./modules/categories/categories.controller";
@@ -30,6 +31,7 @@ export function buildApp() {
   app.register(transactionRoutes, { prefix: "/api/v1/transactions" });
   app.register(transferRoutes, { prefix: "/api/v1/transfers" });
   app.register(budgetRoutes, { prefix: "/api/v1/budgets" });
+  app.register(analyticsRoutes, { prefix: "/api/v1/analytics" });
   app.register(tagRoutes, { prefix: "/api/v1/tags" });
 
   app.get("/health", async () => ({ status: "ok" }));
