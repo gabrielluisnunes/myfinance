@@ -126,6 +126,16 @@ export async function registerUser(input: RegisterInput) {
     data: DEFAULT_CATEGORIES.map((cat) => ({ ...cat, userId: user.id })),
   });
 
+  await prisma.account.create({
+    data: {
+      userId: user.id,
+      name: "Main Account",
+      type: "CHECKING",
+      balance: 0,
+      currency: "BRL",
+    },
+  });
+
   return user;
 }
 

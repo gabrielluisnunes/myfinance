@@ -8,7 +8,6 @@ import { useLocalSearchParams, useRouter } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Platform,
   ScrollView,
   StyleSheet,
@@ -84,6 +83,7 @@ export default function NewTransactionScreen() {
   const [date, setDate] = useState(todayISO());
   const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const { data: categories = [], isLoading: loadingCategories } = useQuery({
     queryKey: ["categories", txType],
@@ -104,20 +104,18 @@ export default function NewTransactionScreen() {
   }
 
   async function handleSave() {
+    setErrorMsg(null);
     const amount = parseFloat(amountStr);
     if (!amount || amount <= 0) {
-      Alert.alert("Valor inválido", "Informe um valor maior que zero.");
+      setErrorMsg("Informe um valor maior que zero.");
       return;
     }
     if (!selectedCategoryId) {
-      Alert.alert(
-        "Selecione uma categoria",
-        "Escolha uma categoria para continuar.",
-      );
+      setErrorMsg("Selecione uma categoria para continuar.");
       return;
     }
     if (!defaultAccount) {
-      Alert.alert("Sem conta", "Crie uma conta antes de adicionar transações.");
+      setErrorMsg("Nenhuma conta encontrada. Crie uma conta primeiro.");
       return;
     }
 
@@ -137,10 +135,7 @@ export default function NewTransactionScreen() {
       queryClient.invalidateQueries({ queryKey: ["accounts"] });
       router.back();
     } catch {
-      Alert.alert(
-        "Erro",
-        "Não foi possível salvar a transação. Tente novamente.",
-      );
+      setErrorMsg("Não foi possível salvar a transação. Tente novamente.");
     } finally {
       setSaving(false);
     }
@@ -160,6 +155,21 @@ export default function NewTransactionScreen() {
         <Text style={styles.headerTitle}>Add New Transaction</Text>
         <View style={{ width: 40 }} />
       </View>
+
+      {/* Error Banner */}
+      {errorMsg && (
+        <View style={styles.errorBanner}>
+          <Ionicons
+            name="alert-circle-outline"
+            size={16}
+            color={Colors.danger}
+          />
+          <Text style={styles.errorBannerText}>{errorMsg}</Text>
+          <TouchableOpacity onPress={() => setErrorMsg(null)}>
+            <Ionicons name="close" size={16} color={Colors.danger} />
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Type Tabs */}
       <View style={styles.tabBar}>
@@ -233,9 +243,8 @@ export default function NewTransactionScreen() {
             <TextInput
               style={[
                 styles.amountInput,
-                {
-                  color: txType === "INCOME" ? Colors.success : Colors.danger,
-                },
+                { color: txType === "INCOME" ? Colors.success : Colors.danger },
+                Platform.OS === "web" && ({ outlineStyle: "none" } as any),
               ]}
               value={amountStr}
               onChangeText={(v) => setAmountStr(v.replace(/[^0-9.]/g, ""))}
@@ -416,6 +425,24 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  errorBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    backgroundColor: Colors.dangerLight,
+    borderLeftWidth: 3,
+    borderLeftColor: Colors.danger,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 10,
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.sm,
+    borderRadius: Radius.md,
+  },
+  errorBannerText: {
+    flex: 1,
+    fontSize: Typography.fontSizes.sm,
+    color: Colors.danger,
+  },
   headerTitle: {
     fontSize: Typography.fontSizes.md,
     fontWeight: Typography.fontWeights.bold,
@@ -463,6 +490,7 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.lg,
     paddingHorizontal: Spacing.lg,
     alignItems: "center",
+    overflow: "hidden",
   },
   amountHint: {
     fontSize: Typography.fontSizes.xs,
@@ -480,21 +508,20 @@ const styles = StyleSheet.create({
   amountRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 6,
+    width: "100%",
+    gap: 4,
   },
   amountCurrency: {
-    fontSize: 36,
+    fontSize: 28,
     fontWeight: Typography.fontWeights.bold,
-    color: Colors.primary,
+    flexShrink: 0,
   },
   amountInput: {
-    fontSize: 48,
+    flex: 1,
+    fontSize: 40,
     fontWeight: Typography.fontWeights.bold,
-    color: Colors.textPrimary,
-    minWidth: 120,
-    textAlign: "left",
     padding: 0,
-  },
+  } as any,
   sectionTitle: {
     fontSize: Typography.fontSizes.md,
     fontWeight: Typography.fontWeights.semibold,
