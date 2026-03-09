@@ -1,4 +1,6 @@
 import { Colors, Radius, Spacing, Typography } from "@/constants/theme";
+import type { MonthlyTrendItem } from "@/services/analytics.service";
+import { analyticsService } from "@/services/analytics.service";
 import { budgetsService } from "@/services/budgets.service";
 import { formatCurrency } from "@/utils/format";
 import { Ionicons } from "@expo/vector-icons";

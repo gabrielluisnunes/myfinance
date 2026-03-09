@@ -167,6 +167,8 @@ export default function NewTransactionScreen() {
       });
       await queryClient.refetchQueries({ queryKey: ["transactions"] });
       await queryClient.refetchQueries({ queryKey: ["accounts"] });
+      queryClient.invalidateQueries({ queryKey: ["budgets"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics"] });
       router.back();
     } catch {
       setErrorMsg("Não foi possível salvar a transação. Tente novamente.");
