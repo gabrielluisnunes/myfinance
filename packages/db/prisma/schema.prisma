@@ -38,6 +38,12 @@ enum TransactionStatus {
   CONFIRMED
 }
 
+enum GoalStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
 // ─── User ─────────────────────────────────────────────────────────────────────
 
 model User {
@@ -54,6 +60,7 @@ model User {
   transfers    Transfer[]
   budgets      Budget[]
   tags         Tag[]
+  goals        Goal[]
 
   @@index([email])
   @@map("users")
@@ -247,4 +254,25 @@ model TransactionTag {
 
   @@id([transactionId, tagId])
   @@map("transaction_tags")
+}
+
+// ─── Goal ─────────────────────────────────────────────────────────────────────
+
+model Goal {
+  id            String     @id @default(uuid())
+  userId        String
+  name          String
+  targetAmount  Decimal    @db.Decimal(15, 2)
+  savedAmount   Decimal    @default(0) @db.Decimal(15, 2)
+  icon          String?
+  color         String?
+  deadline      DateTime?
+  status        GoalStatus @default(ACTIVE)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("goals")
 }

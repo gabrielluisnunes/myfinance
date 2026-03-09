@@ -48,7 +48,7 @@ const MENU_ITEMS: MenuItem[] = [
     label: "Financial Goals",
     icon: "flag-outline",
     activeIcon: "flag",
-    route: null,
+    route: "/goals",
   },
   {
     label: "Settings",

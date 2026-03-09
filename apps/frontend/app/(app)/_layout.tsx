@@ -70,6 +70,19 @@ function AppLayoutInner() {
           }}
         />
         <Tabs.Screen
+          name="goals/index"
+          options={{
+            title: "GOALS",
+            tabBarIcon: ({ focused, color }) => (
+              <Ionicons
+                name={focused ? "trophy" : "trophy-outline"}
+                size={22}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <Tabs.Screen
           name="profile/index"
           options={{
             title: "PROFILE",

@@ -5,6 +5,7 @@ import { analyticsRoutes } from "./modules/analytics/analytics.controller";
 import { authRoutes } from "./modules/auth/auth.controller";
 import { budgetRoutes } from "./modules/budgets/budgets.controller";
 import { categoryRoutes } from "./modules/categories/categories.controller";
+import { goalsRoutes } from "./modules/goals/goals.controller";
 import { tagRoutes } from "./modules/tags/tags.controller";
 import { transactionRoutes } from "./modules/transactions/transactions.controller";
 import { transferRoutes } from "./modules/transfers/transfers.controller";
@@ -33,6 +34,7 @@ export function buildApp() {
   app.register(budgetRoutes, { prefix: "/api/v1/budgets" });
   app.register(analyticsRoutes, { prefix: "/api/v1/analytics" });
   app.register(tagRoutes, { prefix: "/api/v1/tags" });
+  app.register(goalsRoutes, { prefix: "/api/v1/goals" });
 
   app.get("/health", async () => ({ status: "ok" }));
 
