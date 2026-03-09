@@ -32,7 +32,11 @@ function getMonthRange() {
 }
 
 function formatTxDate(dateStr: string): string {
-  const [y, m, d] = dateStr.split("-").map(Number);
+  if (!dateStr) return "";
+  // Handle both "YYYY-MM-DD" and full ISO datetime strings
+  const datePart = dateStr.split("T")[0];
+  const [y, m, d] = datePart.split("-").map(Number);
+  if (!y || !m || !d) return dateStr;
   const txDay = new Date(y, m - 1, d);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -41,7 +45,7 @@ function formatTxDate(dateStr: string): string {
   );
   if (diffDays === 0) return "Today";
   if (diffDays === 1) return "Yesterday";
-  return txDay.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return txDay.toLocaleDateString("pt-BR", { month: "short", day: "numeric" });
 }
 
 function getCategoryIcon(category: Transaction["category"]): IoniconName {

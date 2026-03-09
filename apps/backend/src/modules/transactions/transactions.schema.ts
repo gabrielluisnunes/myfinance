@@ -26,7 +26,7 @@ export const updateTransactionSchema = z.object({
 
 export const listTransactionsSchema = z.object({
   page: z.coerce.number().int().positive().default(1),
-  limit: z.coerce.number().int().positive().max(100).default(20),
+  limit: z.coerce.number().int().positive().max(500).default(20),
   type: z.enum(["INCOME", "EXPENSE"]).optional(),
   status: z.enum(["PENDING", "CONFIRMED"]).optional(),
   accountId: z.string().uuid().optional(),
