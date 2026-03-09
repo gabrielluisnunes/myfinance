@@ -463,7 +463,7 @@ export default function BudgetsScreen() {
           style={styles.overlay}
           onPress={() => setNewModalOpen(false)}
         >
-          <Pressable style={styles.sheet} onPress={() => {}}>
+          <View style={styles.sheet} onStartShouldSetResponder={() => true}>
             <View style={styles.sheetHandle} />
             <Text style={styles.sheetTitle}>Novo Orçamento</Text>
             <Text style={styles.sheetSubtitle}>{formatMonth(month, year)}</Text>
@@ -550,7 +550,7 @@ export default function BudgetsScreen() {
                 <Text style={styles.submitBtnText}>Criar Orçamento</Text>
               )}
             </TouchableOpacity>
-          </Pressable>
+          </View>
         </Pressable>
       </Modal>
 
@@ -562,7 +562,7 @@ export default function BudgetsScreen() {
         onRequestClose={() => setEditBudget(null)}
       >
         <Pressable style={styles.overlay} onPress={() => setEditBudget(null)}>
-          <Pressable style={styles.sheet} onPress={() => {}}>
+          <View style={styles.sheet} onStartShouldSetResponder={() => true}>
             <View style={styles.sheetHandle} />
 
             {/* Edit header */}
@@ -682,7 +682,7 @@ export default function BudgetsScreen() {
                 )}
               </TouchableOpacity>
             </View>
-          </Pressable>
+          </View>
         </Pressable>
       </Modal>
     </SafeAreaView>

@@ -78,6 +78,31 @@ function formatDeadline(deadline: string | null): string | null {
   return d.toLocaleDateString("pt-BR", { month: "short", year: "numeric" });
 }
 
+// ─── Date helpers ───────────────────────────────────────────────────────────────
+function maskDate(text: string): string {
+  const digits = text.replace(/\D/g, "").slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
+
+function displayDateToISO(display: string): string | null {
+  const parts = display.split("/");
+  if (parts.length !== 3 || parts[2].length !== 4) return null;
+  const [dd, mm, yyyy] = parts;
+  const d = new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+  if (isNaN(d.getTime())) return null;
+  return d.toISOString();
+}
+
+function isoToDisplayDate(iso: string): string {
+  const d = new Date(iso);
+  const dd = String(d.getUTCDate()).padStart(2, "0");
+  const mm = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const yyyy = d.getUTCFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+
 // ─── Numpad ───────────────────────────────────────────────────────────────────
 function Numpad({ onKey }: { onKey: (key: string) => void }) {
   return (
@@ -220,7 +245,7 @@ export default function GoalsScreen() {
         savedAmount: savedCents / 100,
         icon: selectedIcon,
         color: selectedColor,
-        deadline: deadlineText ? new Date(deadlineText).toISOString() : null,
+        deadline: displayDateToISO(deadlineText),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["goals"] });
@@ -236,7 +261,7 @@ export default function GoalsScreen() {
         targetAmount: targetCents / 100,
         icon: selectedIcon,
         color: selectedColor,
-        deadline: deadlineText ? new Date(deadlineText).toISOString() : null,
+        deadline: displayDateToISO(deadlineText),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["goals"] });
@@ -282,9 +307,7 @@ export default function GoalsScreen() {
     setSavedCents(Math.round(parseFloat(goal.savedAmount) * 100));
     setSelectedIcon((goal.icon as IoniconName) || "trophy-outline");
     setSelectedColor(goal.color || PRESET_COLORS[0]);
-    setDeadlineText(
-      goal.deadline ? new Date(goal.deadline).toISOString().split("T")[0] : "",
-    );
+    setDeadlineText(goal.deadline ? isoToDisplayDate(goal.deadline) : "");
     setEditGoal(goal);
   }
 
@@ -468,7 +491,7 @@ export default function GoalsScreen() {
         onRequestClose={() => setDepositGoal(null)}
       >
         <Pressable style={styles.overlay} onPress={() => setDepositGoal(null)}>
-          <Pressable style={styles.sheet} onPress={() => {}}>
+          <View style={styles.sheet} onStartShouldSetResponder={() => true}>
             <View style={styles.sheetHandle} />
             <Text style={styles.sheetTitle}>Depositar</Text>
             {depositGoal && (
@@ -498,7 +521,7 @@ export default function GoalsScreen() {
                 <Text style={styles.submitBtnText}>Depositar</Text>
               )}
             </TouchableOpacity>
-          </Pressable>
+          </View>
         </Pressable>
       </Modal>
     </SafeAreaView>
@@ -557,7 +580,10 @@ function GoalFormModal({
       onRequestClose={onClose}
     >
       <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable style={[styles.sheet, styles.sheetTall]} onPress={() => {}}>
+        <View
+          style={[styles.sheet, styles.sheetTall]}
+          onStartShouldSetResponder={() => true}
+        >
           <View style={styles.sheetHandle} />
 
           {/* Header row */}
@@ -607,10 +633,11 @@ function GoalFormModal({
             <TextInput
               style={styles.textInput}
               value={deadlineText}
-              onChangeText={setDeadlineText}
-              placeholder="AAAA-MM-DD"
+              onChangeText={(v) => setDeadlineText(maskDate(v))}
+              placeholder="DD/MM/AAAA"
               placeholderTextColor={Colors.textDisabled}
               keyboardType="numeric"
+              maxLength={10}
             />
 
             {/* Icon picker */}
@@ -681,7 +708,7 @@ function GoalFormModal({
             </TouchableOpacity>
             <View style={{ height: 32 }} />
           </ScrollView>
-        </Pressable>
+        </View>
       </Pressable>
     </Modal>
   );
