@@ -76,7 +76,20 @@ export default function NewTransactionScreen() {
   const [txType, setTxType] = useState<TransactionType>(
     initialType === "INCOME" ? "INCOME" : "EXPENSE",
   );
-  const [amountStr, setAmountStr] = useState("0.00");
+  // cents-based amount: 100 = R$ 1,00
+  const [amountCents, setAmountCents] = useState(0);
+
+  function formatCents(cents: number): string {
+    return (cents / 100).toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    });
+  }
+
+  function handleAmountChange(raw: string) {
+    const digits = raw.replace(/\D/g, "");
+    setAmountCents(digits === "" ? 0 : parseInt(digits, 10));
+  }
   const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
     null,
   );
@@ -105,7 +118,7 @@ export default function NewTransactionScreen() {
 
   async function handleSave() {
     setErrorMsg(null);
-    const amount = parseFloat(amountStr);
+    const amount = amountCents / 100;
     if (!amount || amount <= 0) {
       setErrorMsg("Informe um valor maior que zero.");
       return;
@@ -131,8 +144,8 @@ export default function NewTransactionScreen() {
         date,
         status: "CONFIRMED",
       });
-      queryClient.invalidateQueries({ queryKey: ["transactions"] });
-      queryClient.invalidateQueries({ queryKey: ["accounts"] });
+      await queryClient.refetchQueries({ queryKey: ["transactions"] });
+      await queryClient.refetchQueries({ queryKey: ["accounts"] });
       router.back();
     } catch {
       setErrorMsg("Não foi possível salvar a transação. Tente novamente.");
@@ -246,17 +259,11 @@ export default function NewTransactionScreen() {
                 { color: txType === "INCOME" ? Colors.success : Colors.danger },
                 Platform.OS === "web" && ({ outlineStyle: "none" } as any),
               ]}
-              value={amountStr}
-              onChangeText={(v) => setAmountStr(v.replace(/[^0-9.]/g, ""))}
-              keyboardType="decimal-pad"
+              value={formatCents(amountCents)}
+              onChangeText={handleAmountChange}
+              keyboardType="number-pad"
               selectTextOnFocus
-              onFocus={() => {
-                if (amountStr === "0.00") setAmountStr("");
-              }}
-              onBlur={() => {
-                if (!amountStr) setAmountStr("0.00");
-              }}
-              placeholder="0.00"
+              placeholder="0,00"
               placeholderTextColor={
                 txType === "INCOME"
                   ? `${Colors.success}66`
