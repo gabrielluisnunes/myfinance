@@ -57,7 +57,12 @@ const PRESET_ICONS: IoniconName[] = [
   "star-outline",
 ];
 
-const NUMPAD_KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "⌫"];
+const NUMPAD_ROWS = [
+  ["1", "2", "3"],
+  ["4", "5", "6"],
+  ["7", "8", "9"],
+  ["", "0", "⌫"],
+];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function centsToDisplay(cents: number): string {
@@ -107,24 +112,31 @@ function isoToDisplayDate(iso: string): string {
 function Numpad({ onKey }: { onKey: (key: string) => void }) {
   return (
     <View style={styles.numpad}>
-      {NUMPAD_KEYS.map((key, i) => (
-        <TouchableOpacity
-          key={i}
-          style={[styles.numKey, key === "" && styles.numKeyEmpty]}
-          onPress={() => key !== "" && onKey(key)}
-          disabled={key === ""}
-          activeOpacity={0.65}
-        >
-          {key === "⌫" ? (
-            <Ionicons
-              name="backspace-outline"
-              size={20}
-              color={Colors.textPrimary}
-            />
-          ) : (
-            <Text style={styles.numKeyText}>{key}</Text>
+      {NUMPAD_ROWS.map((row, ri) => (
+        <View key={ri} style={styles.numpadRow}>
+          {row.map((key, ki) =>
+            key === "" ? (
+              <View key={ki} style={styles.numKeyBlank} />
+            ) : (
+              <TouchableOpacity
+                key={ki}
+                style={[styles.numKey, key === "⌫" && styles.numKeyDelete]}
+                onPress={() => onKey(key)}
+                activeOpacity={0.6}
+              >
+                {key === "⌫" ? (
+                  <Ionicons
+                    name="backspace-outline"
+                    size={22}
+                    color={Colors.textSecondary}
+                  />
+                ) : (
+                  <Text style={styles.numKeyText}>{key}</Text>
+                )}
+              </TouchableOpacity>
+            ),
           )}
-        </TouchableOpacity>
+        </View>
       ))}
     </View>
   );
@@ -298,7 +310,7 @@ export default function GoalsScreen() {
 
   function openCreate() {
     resetForm();
-    setCreateOpen(true);
+    setTimeout(() => setCreateOpen(true), 0);
   }
 
   function openEdit(goal: Goal) {
@@ -308,12 +320,12 @@ export default function GoalsScreen() {
     setSelectedIcon((goal.icon as IoniconName) || "trophy-outline");
     setSelectedColor(goal.color || PRESET_COLORS[0]);
     setDeadlineText(goal.deadline ? isoToDisplayDate(goal.deadline) : "");
-    setEditGoal(goal);
+    setTimeout(() => setEditGoal(goal), 0);
   }
 
   function openDeposit(goal: Goal) {
     setDepositCents(0);
-    setDepositGoal(goal);
+    setTimeout(() => setDepositGoal(goal), 0);
   }
 
   function confirmDelete() {
@@ -490,8 +502,12 @@ export default function GoalsScreen() {
         transparent
         onRequestClose={() => setDepositGoal(null)}
       >
-        <Pressable style={styles.overlay} onPress={() => setDepositGoal(null)}>
-          <View style={styles.sheet} onStartShouldSetResponder={() => true}>
+        <View style={styles.overlay} pointerEvents="box-none">
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={() => setDepositGoal(null)}
+          />
+          <View style={styles.sheet}>
             <View style={styles.sheetHandle} />
             <Text style={styles.sheetTitle}>Depositar</Text>
             {depositGoal && (
@@ -522,7 +538,7 @@ export default function GoalsScreen() {
               )}
             </TouchableOpacity>
           </View>
-        </Pressable>
+        </View>
       </Modal>
     </SafeAreaView>
   );
@@ -579,11 +595,9 @@ function GoalFormModal({
       transparent
       onRequestClose={onClose}
     >
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <View
-          style={[styles.sheet, styles.sheetTall]}
-          onStartShouldSetResponder={() => true}
-        >
+      <View style={styles.overlay} pointerEvents="box-none">
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        <View style={[styles.sheet, styles.sheetTall]}>
           <View style={styles.sheetHandle} />
 
           {/* Header row */}
@@ -709,7 +723,7 @@ function GoalFormModal({
             <View style={{ height: 32 }} />
           </ScrollView>
         </View>
-      </Pressable>
+      </View>
     </Modal>
   );
 }
@@ -1031,29 +1045,34 @@ const styles = StyleSheet.create({
 
   // ── Numpad ────────────────────────────────────────────────────────────
   numpad: {
-    flexDirection: "row",
-    flexWrap: "wrap",
     gap: 8,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.md,
+  },
+  numpadRow: {
+    flexDirection: "row",
+    gap: 8,
   },
   numKey: {
-    width: "30%",
     flex: 1,
-    paddingVertical: 14,
+    height: 56,
     alignItems: "center",
-    backgroundColor: Colors.gray50,
-    borderRadius: Radius.sm,
+    justifyContent: "center",
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  numKeyEmpty: {
-    backgroundColor: "transparent",
-    borderColor: "transparent",
+  numKeyDelete: {
+    backgroundColor: Colors.gray100,
+  },
+  numKeyBlank: {
+    flex: 1,
   },
   numKeyText: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "600",
     color: Colors.textPrimary,
+    lineHeight: 28,
   },
 
   // ── Icon & Color pickers ──────────────────────────────────────────────

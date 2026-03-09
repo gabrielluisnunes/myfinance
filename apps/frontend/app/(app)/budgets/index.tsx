@@ -254,12 +254,12 @@ export default function BudgetsScreen() {
   function openNewModal() {
     setAmountCents(0);
     setSelectedCatId("");
-    setNewModalOpen(true);
+    setTimeout(() => setNewModalOpen(true), 0);
   }
 
   function openEditModal(budget: Budget) {
     setAmountCents(Math.round(parseFloat(budget.amount) * 100));
-    setEditBudget(budget);
+    setTimeout(() => setEditBudget(budget), 0);
   }
 
   function confirmDelete() {
@@ -459,11 +459,12 @@ export default function BudgetsScreen() {
         transparent
         onRequestClose={() => setNewModalOpen(false)}
       >
-        <Pressable
-          style={styles.overlay}
-          onPress={() => setNewModalOpen(false)}
-        >
-          <View style={styles.sheet} onStartShouldSetResponder={() => true}>
+        <View style={styles.overlay} pointerEvents="box-none">
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={() => setNewModalOpen(false)}
+          />
+          <View style={styles.sheet}>
             <View style={styles.sheetHandle} />
             <Text style={styles.sheetTitle}>Novo Orçamento</Text>
             <Text style={styles.sheetSubtitle}>{formatMonth(month, year)}</Text>
@@ -551,7 +552,7 @@ export default function BudgetsScreen() {
               )}
             </TouchableOpacity>
           </View>
-        </Pressable>
+        </View>
       </Modal>
 
       {/* ── Edit Budget Modal ─────────────────────────────────────── */}
@@ -561,8 +562,12 @@ export default function BudgetsScreen() {
         transparent
         onRequestClose={() => setEditBudget(null)}
       >
-        <Pressable style={styles.overlay} onPress={() => setEditBudget(null)}>
-          <View style={styles.sheet} onStartShouldSetResponder={() => true}>
+        <View style={styles.overlay} pointerEvents="box-none">
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={() => setEditBudget(null)}
+          />
+          <View style={styles.sheet}>
             <View style={styles.sheetHandle} />
 
             {/* Edit header */}
@@ -683,7 +688,7 @@ export default function BudgetsScreen() {
               </TouchableOpacity>
             </View>
           </View>
-        </Pressable>
+        </View>
       </Modal>
     </SafeAreaView>
   );
