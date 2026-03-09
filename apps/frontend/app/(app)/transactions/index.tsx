@@ -5,14 +5,21 @@ import { useQuery } from "@tanstack/react-query";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-
 // ─── Types & Constants ───────────────────────────────────────────────────────
 type Period = "weekly" | "monthly" | "yearly";
 type IoniconName = React.ComponentProps<typeof Ionicons>["name"];
 
 const CHART_COLORS = [
-  "#2B3AF7", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6",
-  "#06B6D4", "#EC4899", "#84CC16", "#F97316", "#14B8A6",
+  "#2B3AF7",
+  "#10B981",
+  "#F59E0B",
+  "#EF4444",
+  "#8B5CF6",
+  "#06B6D4",
+  "#EC4899",
+  "#84CC16",
+  "#F97316",
+  "#14B8A6",
 ];
 
 const ICON_MAP: Array<[string, IoniconName]> = [
@@ -250,10 +257,7 @@ export default function ReportsScreen() {
     }));
 
   // ── Budget stats ─────────────────────────────────
-  const totalBudgeted = budgets.reduce(
-    (s, b) => s + parseFloat(b.amount),
-    0,
-  );
+  const totalBudgeted = budgets.reduce((s, b) => s + parseFloat(b.amount), 0);
   const totalBudgetSpent = budgets.reduce((s, b) => s + b.spent, 0);
 
   // ── Render ──────────────────────────────────────
@@ -279,7 +283,11 @@ export default function ReportsScreen() {
                 period === p && styles.periodTabLabelActive,
               ]}
             >
-              {p === "weekly" ? "Weekly" : p === "monthly" ? "Monthly" : "Yearly"}
+              {p === "weekly"
+                ? "Weekly"
+                : p === "monthly"
+                  ? "Monthly"
+                  : "Yearly"}
             </Text>
           </TouchableOpacity>
         ))}
@@ -310,7 +318,9 @@ export default function ReportsScreen() {
                     styles.changeBadge,
                     {
                       backgroundColor:
-                        pctChange > 0 ? Colors.dangerLight : Colors.successLight,
+                        pctChange > 0
+                          ? Colors.dangerLight
+                          : Colors.successLight,
                     },
                   ]}
                 >
@@ -323,8 +333,7 @@ export default function ReportsScreen() {
                     style={[
                       styles.changeBadgeText,
                       {
-                        color:
-                          pctChange > 0 ? Colors.danger : Colors.success,
+                        color: pctChange > 0 ? Colors.danger : Colors.success,
                       },
                     ]}
                   >
@@ -340,7 +349,10 @@ export default function ReportsScreen() {
                   ]}
                 >
                   <Text
-                    style={[styles.changeBadgeText, { color: Colors.textSecondary }]}
+                    style={[
+                      styles.changeBadgeText,
+                      { color: Colors.textSecondary },
+                    ]}
                   >
                     Primeiro período
                   </Text>
@@ -484,7 +496,8 @@ export default function ReportsScreen() {
                 const limit = parseFloat(budget.amount);
                 const spent = budget.spent;
                 const isOver = spent > limit;
-                const pct = limit > 0 ? Math.min((spent / limit) * 100, 100) : 0;
+                const pct =
+                  limit > 0 ? Math.min((spent / limit) * 100, 100) : 0;
                 const barColor = isOver ? Colors.danger : Colors.primary;
                 return (
                   <View key={budget.id} style={styles.budgetItem}>
@@ -509,15 +522,17 @@ export default function ReportsScreen() {
                           isOver && { color: Colors.danger },
                         ]}
                       >
-                        {formatCurrency(spent)} /{" "}
-                        {formatCurrency(limit)}
+                        {formatCurrency(spent)} / {formatCurrency(limit)}
                       </Text>
                     </View>
                     <View style={styles.progressTrack}>
                       <View
                         style={[
                           styles.progressFill,
-                          { width: `${pct}%` as any, backgroundColor: barColor },
+                          {
+                            width: `${pct}%` as any,
+                            backgroundColor: barColor,
+                          },
                         ]}
                       />
                     </View>
@@ -792,106 +807,4 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: "center",
   },
-});
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["transactions"],
-    queryFn: () => transactionsService.list({ page: 1, limit: 50 }),
-  });
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Transações</Text>
-      </View>
-      <FlatList
-        data={data?.data ?? []}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text style={styles.emptyText}>
-              {isLoading ? "Carregando..." : "Nenhuma transação"}
-            </Text>
-          </View>
-        }
-        renderItem={({ item: tx }) => (
-          <View style={styles.item}>
-            <View
-              style={[
-                styles.dot,
-                {
-                  backgroundColor:
-                    tx.type === "INCOME" ? Colors.income : Colors.expense,
-                },
-              ]}
-            />
-            <View style={styles.info}>
-              <Text style={styles.description}>{tx.description}</Text>
-              <Text style={styles.meta}>
-                {tx.category.name} · {formatShortDate(tx.date)}
-              </Text>
-            </View>
-            <View style={styles.right}>
-              <Text
-                style={[
-                  styles.amount,
-                  {
-                    color:
-                      tx.type === "INCOME" ? Colors.income : Colors.expense,
-                  },
-                ]}
-              >
-                {tx.type === "INCOME" ? "+" : "-"}
-                {formatCurrency(parseFloat(tx.amount))}
-              </Text>
-              <Text style={styles.status}>
-                {tx.status === "CONFIRMED" ? "✓" : "⏳"}
-              </Text>
-            </View>
-          </View>
-        )}
-      />
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
-  header: { padding: Spacing.lg, paddingBottom: Spacing.md },
-  title: {
-    fontSize: Typography.fontSizes.xxl,
-    fontWeight: Typography.fontWeights.bold,
-    color: Colors.textPrimary,
-  },
-  list: { padding: Spacing.lg, paddingTop: 0, paddingBottom: Spacing.xxl },
-  empty: { alignItems: "center", padding: Spacing.xxl },
-  emptyText: { fontSize: Typography.fontSizes.md, color: Colors.textSecondary },
-  item: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: Colors.surface,
-    borderRadius: Radius.md,
-    padding: Spacing.md,
-    marginBottom: Spacing.sm,
-  },
-  dot: { width: 10, height: 10, borderRadius: 5, marginRight: Spacing.md },
-  info: { flex: 1 },
-  description: {
-    fontSize: Typography.fontSizes.md,
-    fontWeight: Typography.fontWeights.medium,
-    color: Colors.textPrimary,
-  },
-  meta: {
-    fontSize: Typography.fontSizes.xs,
-    color: Colors.textSecondary,
-    marginTop: 2,
-  },
-  right: { alignItems: "flex-end" },
-  amount: {
-    fontSize: Typography.fontSizes.md,
-    fontWeight: Typography.fontWeights.semibold,
-  },
-  status: { fontSize: Typography.fontSizes.xs, marginTop: 2 },
 });
