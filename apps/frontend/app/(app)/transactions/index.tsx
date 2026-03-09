@@ -1,9 +1,21 @@
 import { Colors, Radius, Spacing, Typography } from "@/constants/theme";
+import { budgetsService } from "@/services/budgets.service";
 import { transactionsService } from "@/services/transactions.service";
 import { formatCurrency } from "@/utils/format";
+import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
-import { StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
+import { useMemo, useState } from "react";
+import {
+  ActivityIndicator,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { Circle, Path, Svg } from "react-native-svg";
 
 // ─── Types & Constants ───────────────────────────────────────────────────────
 type Period = "weekly" | "monthly" | "yearly";
