@@ -88,6 +88,10 @@ function AppLayoutInner() {
           name="transaction/new"
           options={{ href: null, tabBarStyle: { display: "none" } }}
         />
+        <Tabs.Screen
+          name="transaction/[id]"
+          options={{ href: null, tabBarStyle: { display: "none" } }}
+        />
       </Tabs>
 
       <Sidebar visible={isOpen} onClose={close} />

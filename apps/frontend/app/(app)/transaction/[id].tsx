@@ -6,9 +6,10 @@ import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Platform,
   ScrollView,
   StyleSheet,
@@ -58,16 +59,22 @@ function getCategoryIcon(name: string, icon: string): IoniconName {
   return "pricetag-outline";
 }
 
-export default function NewTransactionScreen() {
+export default function EditTransactionScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const { type: initialType } = useLocalSearchParams<{ type?: string }>();
+  const { id } = useLocalSearchParams<{ id: string }>();
 
-  const [txType, setTxType] = useState<TransactionType>(
-    initialType === "INCOME" ? "INCOME" : "EXPENSE",
-  );
-  // cents-based amount: 100 = R$ 1,00
+  const [txType, setTxType] = useState<TransactionType>("EXPENSE");
   const [amountCents, setAmountCents] = useState(0);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
+    null,
+  );
+  const [date, setDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [description, setDescription] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   function formatCents(cents: number): string {
     return (cents / 100).toLocaleString("pt-BR", {
@@ -80,11 +87,6 @@ export default function NewTransactionScreen() {
     const digits = raw.replace(/\D/g, "");
     setAmountCents(digits === "" ? 0 : parseInt(digits, 10));
   }
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(
-    null,
-  );
-  const [date, setDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
 
   function dateToISO(d: Date): string {
     const pad = (n: number) => String(n).padStart(2, "0");
@@ -95,9 +97,24 @@ export default function NewTransactionScreen() {
     return d.toLocaleDateString("pt-BR");
   }
 
-  const [description, setDescription] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  // Fetch the transaction to edit
+  const { data: transaction, isLoading: loadingTx } = useQuery({
+    queryKey: ["transaction", id],
+    queryFn: () => transactionsService.getById(id!),
+    enabled: !!id,
+  });
+
+  // Pre-fill form once transaction is loaded
+  useEffect(() => {
+    if (!transaction) return;
+    setTxType(transaction.type);
+    setAmountCents(Math.round(parseFloat(transaction.amount) * 100));
+    setSelectedCategoryId(transaction.category.id);
+    setDescription(transaction.description);
+    // Parse date safely using local time (avoid timezone shift)
+    const [y, m, d] = transaction.date.split("-").map(Number);
+    setDate(new Date(y, m - 1, d));
+  }, [transaction]);
 
   const { data: categories = [], isLoading: loadingCategories } = useQuery({
     queryKey: ["categories", txType],
@@ -129,13 +146,13 @@ export default function NewTransactionScreen() {
       return;
     }
     if (!defaultAccount) {
-      setErrorMsg("Nenhuma conta encontrada. Crie uma conta primeiro.");
+      setErrorMsg("Nenhuma conta encontrada.");
       return;
     }
 
     setSaving(true);
     try {
-      await transactionsService.create({
+      await transactionsService.update(id!, {
         accountId: defaultAccount.id,
         categoryId: selectedCategoryId,
         type: txType,
@@ -155,6 +172,47 @@ export default function NewTransactionScreen() {
     }
   }
 
+  function confirmDelete() {
+    if (Platform.OS === "web") {
+      if (window.confirm("Tem certeza que deseja excluir esta transação?")) {
+        handleDelete();
+      }
+    } else {
+      Alert.alert(
+        "Excluir transação",
+        "Tem certeza que deseja excluir esta transação? Esta ação não pode ser desfeita.",
+        [
+          { text: "Cancelar", style: "cancel" },
+          { text: "Excluir", style: "destructive", onPress: handleDelete },
+        ],
+      );
+    }
+  }
+
+  async function handleDelete() {
+    setDeleting(true);
+    try {
+      await transactionsService.delete(id!);
+      await queryClient.refetchQueries({ queryKey: ["transactions"] });
+      await queryClient.refetchQueries({ queryKey: ["accounts"] });
+      router.back();
+    } catch {
+      setErrorMsg("Não foi possível excluir a transação.");
+    } finally {
+      setDeleting(false);
+    }
+  }
+
+  if (loadingTx) {
+    return (
+      <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={Colors.primary} />
+        </View>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       {/* Header */}
@@ -164,10 +222,21 @@ export default function NewTransactionScreen() {
           onPress={() => router.back()}
           activeOpacity={0.7}
         >
-          <Ionicons name="close" size={22} color={Colors.textPrimary} />
+          <Ionicons name="arrow-back" size={22} color={Colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Add New Transaction</Text>
-        <View style={{ width: 40 }} />
+        <Text style={styles.headerTitle}>Edit Transaction</Text>
+        <TouchableOpacity
+          style={[styles.closeBtn, { backgroundColor: Colors.dangerLight }]}
+          onPress={confirmDelete}
+          activeOpacity={0.7}
+          disabled={deleting}
+        >
+          {deleting ? (
+            <ActivityIndicator size="small" color={Colors.danger} />
+          ) : (
+            <Ionicons name="trash-outline" size={20} color={Colors.danger} />
+          )}
+        </TouchableOpacity>
       </View>
 
       {/* Error Banner */}
@@ -236,9 +305,7 @@ export default function NewTransactionScreen() {
           <Text
             style={[
               styles.amountLabel,
-              {
-                color: txType === "INCOME" ? Colors.success : Colors.danger,
-              },
+              { color: txType === "INCOME" ? Colors.success : Colors.danger },
             ]}
           >
             {txType === "INCOME" ? "↑ INCOME AMOUNT" : "↓ EXPENSE AMOUNT"}
@@ -247,9 +314,7 @@ export default function NewTransactionScreen() {
             <Text
               style={[
                 styles.amountCurrency,
-                {
-                  color: txType === "INCOME" ? Colors.success : Colors.danger,
-                },
+                { color: txType === "INCOME" ? Colors.success : Colors.danger },
               ]}
             >
               R$
@@ -289,9 +354,7 @@ export default function NewTransactionScreen() {
               size={32}
               color={Colors.textSecondary}
             />
-            <Text style={styles.emptyCategoriesText}>
-              No categories found. Add some in Settings.
-            </Text>
+            <Text style={styles.emptyCategoriesText}>No categories found.</Text>
           </View>
         ) : (
           <View style={styles.categoryGrid}>
@@ -421,7 +484,7 @@ export default function NewTransactionScreen() {
           {saving ? (
             <ActivityIndicator color={Colors.white} />
           ) : (
-            <Text style={styles.saveBtnText}>Save Transaction</Text>
+            <Text style={styles.saveBtnText}>Save Changes</Text>
           )}
         </TouchableOpacity>
       </View>
@@ -431,6 +494,11 @@ export default function NewTransactionScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.surface },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
@@ -599,38 +667,33 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.background,
     borderRadius: Radius.lg,
     paddingHorizontal: Spacing.md,
-    paddingVertical: 14,
+    paddingVertical: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
-    gap: 10,
   },
   fieldInput: {
     flex: 1,
     fontSize: Typography.fontSizes.sm,
     color: Colors.textPrimary,
+    marginLeft: 10,
     padding: 0,
-  },
+  } as any,
   footer: {
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-    backgroundColor: Colors.surface,
   },
   saveBtn: {
     backgroundColor: Colors.primary,
     borderRadius: Radius.lg,
     paddingVertical: 16,
     alignItems: "center",
-    justifyContent: "center",
   },
-  saveBtnDisabled: {
-    opacity: 0.6,
-  },
+  saveBtnDisabled: { opacity: 0.6 },
   saveBtnText: {
     fontSize: Typography.fontSizes.md,
     fontWeight: Typography.fontWeights.bold,
     color: Colors.white,
-    letterSpacing: 0.3,
   },
 });

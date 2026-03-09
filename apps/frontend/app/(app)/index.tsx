@@ -209,7 +209,14 @@ export default function DashboardScreen() {
                 : Colors.gray100;
               const iconColor = tx.category.color || Colors.primary;
               return (
-                <View key={tx.id} style={styles.txItem}>
+                <TouchableOpacity
+                  key={tx.id}
+                  style={styles.txItem}
+                  activeOpacity={0.75}
+                  onPress={() =>
+                    router.push(`/(app)/transaction/${tx.id}` as never)
+                  }
+                >
                   <View
                     style={[styles.txIconCircle, { backgroundColor: bgColor }]}
                   >
@@ -244,7 +251,14 @@ export default function DashboardScreen() {
                       {tx.category.name.toUpperCase()}
                     </Text>
                   </View>
-                </View>
+                  <View style={styles.txEditBtn}>
+                    <Ionicons
+                      name="pencil-outline"
+                      size={14}
+                      color={Colors.textSecondary}
+                    />
+                  </View>
+                </TouchableOpacity>
               );
             })
           )}
@@ -418,6 +432,15 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
   },
   txRight: { alignItems: "flex-end" },
+  txEditBtn: {
+    width: 28,
+    height: 28,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.background,
+    justifyContent: "center",
+    alignItems: "center",
+    marginLeft: 4,
+  },
   txAmount: {
     fontSize: Typography.fontSizes.sm,
     fontWeight: Typography.fontWeights.bold,
