@@ -2,6 +2,7 @@ import { Colors, Radius, Spacing, Typography } from "@/constants/theme";
 import type { MonthlyTrendItem } from "@/services/analytics.service";
 import { analyticsService } from "@/services/analytics.service";
 import { budgetsService } from "@/services/budgets.service";
+import { goalsService } from "@/services/goals.service";
 import { formatCurrency } from "@/utils/format";
 import { Ionicons } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
@@ -300,6 +301,12 @@ export default function ReportsScreen() {
     queryFn: () => budgetsService.list(ranges.budgetMonth, ranges.budgetYear),
     enabled: ranges.showBudgets,
   });
+
+  const { data: allGoals = [] } = useQuery({
+    queryKey: ["goals"],
+    queryFn: goalsService.list,
+  });
+  const activeGoals = allGoals.filter((g) => g.status === "ACTIVE");
 
   const totalSpent = summary?.current.totalExpenses ?? 0;
   const pctChange = summary?.pctChange ?? null;
@@ -693,6 +700,70 @@ export default function ReportsScreen() {
             )}
           </View>
         )}
+
+        {/* ── Goals Progress ─────────────────────────── */}
+        {activeGoals.length > 0 && (
+          <View style={[styles.section, styles.lastSection]}>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionTitle}>Goals Progress</Text>
+              <TouchableOpacity
+                onPress={() => router.push("/(app)/goals" as never)}
+              >
+                <Text style={styles.seeAll}>See All</Text>
+              </TouchableOpacity>
+            </View>
+            {activeGoals.map((goal) => {
+              const target = parseFloat(goal.targetAmount);
+              const saved = parseFloat(goal.savedAmount);
+              const pct =
+                target > 0 ? Math.min((saved / target) * 100, 100) : 0;
+              const remaining = Math.max(0, target - saved);
+              const color = goal.color || Colors.primary;
+              const icon = (goal.icon ||
+                "trophy-outline") as React.ComponentProps<
+                typeof Ionicons
+              >["name"];
+              return (
+                <View key={goal.id} style={styles.goalItem}>
+                  <View style={styles.goalItemHeader}>
+                    <View style={styles.goalItemLeft}>
+                      <View
+                        style={[
+                          styles.goalIconCircle,
+                          { backgroundColor: color + "22" },
+                        ]}
+                      >
+                        <Ionicons name={icon} size={16} color={color} />
+                      </View>
+                      <Text style={styles.goalName} numberOfLines={1}>
+                        {goal.name}
+                      </Text>
+                    </View>
+                    <Text style={[styles.goalPct, { color }]}>
+                      {Math.round(pct)}%
+                    </Text>
+                  </View>
+                  <View style={styles.progressTrack}>
+                    <View
+                      style={[
+                        styles.progressFill,
+                        { width: `${pct}%` as any, backgroundColor: color },
+                      ]}
+                    />
+                  </View>
+                  <View style={styles.goalAmountsRow}>
+                    <Text style={styles.goalSaved}>
+                      {formatCurrency(saved)} guardados
+                    </Text>
+                    <Text style={styles.goalRemaining}>
+                      faltam {formatCurrency(remaining)}
+                    </Text>
+                  </View>
+                </View>
+              );
+            })}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
@@ -974,6 +1045,60 @@ const styles = StyleSheet.create({
     color: Colors.danger,
     marginTop: 4,
     fontWeight: Typography.fontWeights.medium,
+  },
+
+  // ── Goal items ────────────────────────────────────────────────────────
+  goalItem: {
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  goalItemHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+  },
+  goalItemLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    flex: 1,
+    marginRight: 8,
+  },
+  goalIconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  goalName: {
+    fontSize: Typography.fontSizes.sm,
+    fontWeight: Typography.fontWeights.semibold,
+    color: Colors.textPrimary,
+    flex: 1,
+  },
+  goalPct: {
+    fontSize: Typography.fontSizes.sm,
+    fontWeight: Typography.fontWeights.bold,
+  },
+  goalAmountsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 4,
+  },
+  goalSaved: {
+    fontSize: Typography.fontSizes.xs,
+    color: Colors.textPrimary,
+    fontWeight: Typography.fontWeights.medium,
+  },
+  goalRemaining: {
+    fontSize: Typography.fontSizes.xs,
+    color: Colors.textSecondary,
   },
 
   // Monthly Trend Chart

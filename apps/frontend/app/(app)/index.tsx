@@ -1,6 +1,7 @@
 ﻿import { Colors, Radius, Spacing, Typography } from "@/constants/theme";
 import { useSidebar } from "@/contexts/sidebar.context";
 import { accountsService } from "@/services/accounts.service";
+import { goalsService } from "@/services/goals.service";
 import {
   transactionsService,
   type Transaction,
@@ -85,6 +86,13 @@ export default function DashboardScreen() {
     queryKey: ["transactions", "recent"],
     queryFn: () => transactionsService.list({ page: 1, limit: 5 }),
   });
+
+  const { data: goals = [] } = useQuery({
+    queryKey: ["goals"],
+    queryFn: goalsService.list,
+  });
+
+  const activeGoals = goals.filter((g) => g.status === "ACTIVE");
 
   const totalBalance =
     accounts?.reduce((sum, acc) => sum + parseFloat(acc.balance), 0) ?? 0;
@@ -185,6 +193,69 @@ export default function DashboardScreen() {
             </Text>
           </View>
         </View>
+
+        {/* Goals */}
+        {activeGoals.length > 0 && (
+          <View style={styles.section}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Minhas Metas</Text>
+              <TouchableOpacity onPress={() => router.push("/goals" as never)}>
+                <Text style={styles.sectionLink}>Ver todas</Text>
+              </TouchableOpacity>
+            </View>
+            {activeGoals.slice(0, 3).map((goal) => {
+              const target = parseFloat(goal.targetAmount);
+              const saved = parseFloat(goal.savedAmount);
+              const pct =
+                target > 0 ? Math.min((saved / target) * 100, 100) : 0;
+              const remaining = Math.max(0, target - saved);
+              const color = goal.color || Colors.primary;
+              const icon = (goal.icon ||
+                "trophy-outline") as React.ComponentProps<
+                typeof Ionicons
+              >["name"];
+              return (
+                <TouchableOpacity
+                  key={goal.id}
+                  style={styles.goalItem}
+                  activeOpacity={0.8}
+                  onPress={() => router.push("/goals" as never)}
+                >
+                  <View
+                    style={[
+                      styles.goalIconCircle,
+                      { backgroundColor: color + "22" },
+                    ]}
+                  >
+                    <Ionicons name={icon} size={18} color={color} />
+                  </View>
+                  <View style={styles.goalInfo}>
+                    <View style={styles.goalNameRow}>
+                      <Text style={styles.goalName} numberOfLines={1}>
+                        {goal.name}
+                      </Text>
+                      <Text style={[styles.goalPct, { color }]}>
+                        {Math.round(pct)}%
+                      </Text>
+                    </View>
+                    <View style={styles.goalTrack}>
+                      <View
+                        style={[
+                          styles.goalFill,
+                          { width: `${pct}%` as any, backgroundColor: color },
+                        ]}
+                      />
+                    </View>
+                    <Text style={styles.goalAmounts}>
+                      {formatCurrency(saved)} guardados · faltam{" "}
+                      {formatCurrency(remaining)}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        )}
 
         {/* Recent Transactions */}
         <View style={styles.section}>
@@ -397,6 +468,61 @@ const styles = StyleSheet.create({
     fontSize: Typography.fontSizes.sm,
     color: Colors.primary,
     fontWeight: Typography.fontWeights.medium,
+  },
+  // ── Goal items ────────────────────────────────────────────────────────
+  goalItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.lg,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+    gap: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...cardShadow,
+  },
+  goalIconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  goalInfo: {
+    flex: 1,
+  },
+  goalNameRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  goalName: {
+    fontSize: Typography.fontSizes.sm,
+    fontWeight: Typography.fontWeights.semibold,
+    color: Colors.textPrimary,
+    flex: 1,
+    marginRight: 8,
+  },
+  goalPct: {
+    fontSize: Typography.fontSizes.sm,
+    fontWeight: Typography.fontWeights.bold,
+  },
+  goalTrack: {
+    height: 6,
+    backgroundColor: Colors.gray100,
+    borderRadius: 3,
+    overflow: "hidden",
+    marginBottom: 4,
+  },
+  goalFill: {
+    height: 6,
+    borderRadius: 3,
+  },
+  goalAmounts: {
+    fontSize: Typography.fontSizes.xs,
+    color: Colors.textSecondary,
   },
   empty: {
     alignItems: "center",

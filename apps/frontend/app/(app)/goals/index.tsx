@@ -582,40 +582,42 @@ export default function GoalsScreen() {
                     {chips.length > 0 && (
                       <>
                         <Text style={styles.inputLabel}>Sugestões</Text>
-                        <ScrollView
-                          horizontal
-                          showsHorizontalScrollIndicator={false}
-                          contentContainerStyle={styles.quickAmountsRow}
-                        >
-                          {chips.map((v) => {
-                            const isComplete = v === remainingCents;
-                            const isSelected = depositCents === v;
-                            return (
-                              <TouchableOpacity
-                                key={v}
-                                style={[
-                                  styles.quickChip,
-                                  isSelected && {
-                                    backgroundColor: color,
-                                    borderColor: color,
-                                  },
-                                ]}
-                                onPress={() => setDepositCents(v)}
-                                activeOpacity={0.75}
-                              >
-                                <Text
+                        <View style={styles.quickAmountsWrapper}>
+                          <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.quickAmountsRow}
+                          >
+                            {chips.map((v) => {
+                              const isComplete = v === remainingCents;
+                              const isSelected = depositCents === v;
+                              return (
+                                <TouchableOpacity
+                                  key={v}
                                   style={[
-                                    styles.quickChipText,
-                                    isSelected && { color: Colors.white },
+                                    styles.quickChip,
+                                    isSelected && {
+                                      backgroundColor: color,
+                                      borderColor: color,
+                                    },
                                   ]}
+                                  onPress={() => setDepositCents(v)}
+                                  activeOpacity={0.75}
                                 >
-                                  {isComplete ? "🎯 " : ""}
-                                  {centsToDisplay(v)}
-                                </Text>
-                              </TouchableOpacity>
-                            );
-                          })}
-                        </ScrollView>
+                                  <Text
+                                    style={[
+                                      styles.quickChipText,
+                                      isSelected && { color: Colors.white },
+                                    ]}
+                                  >
+                                    {isComplete ? "🎯 " : ""}
+                                    {centsToDisplay(v)}
+                                  </Text>
+                                </TouchableOpacity>
+                              );
+                            })}
+                          </ScrollView>
+                        </View>
                       </>
                     )}
                   </>
@@ -1067,6 +1069,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 8,
     paddingBottom: 4,
+  },
+  quickAmountsWrapper: {
+    height: 44,
+    marginBottom: Spacing.sm,
   },
   quickChip: {
     paddingHorizontal: 14,
