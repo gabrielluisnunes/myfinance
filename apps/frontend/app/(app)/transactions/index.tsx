@@ -326,7 +326,7 @@ export default function ReportsScreen() {
     <SafeAreaView style={styles.container} edges={["top"]}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Spending Reports</Text>
+        <Text style={styles.headerTitle}>Relatórios</Text>
       </View>
 
       {/* Period Tabs */}
@@ -345,10 +345,10 @@ export default function ReportsScreen() {
               ]}
             >
               {p === "weekly"
-                ? "Weekly"
+                ? "Semanal"
                 : p === "monthly"
-                  ? "Monthly"
-                  : "Yearly"}
+                  ? "Mensal"
+                  : "Anual"}
             </Text>
           </TouchableOpacity>
         ))}
@@ -499,20 +499,20 @@ export default function ReportsScreen() {
         {/* ── Chart ─────────────────────────────────── */}
         {!isLoading && period === "yearly" ? (
           <View style={[styles.section, { marginBottom: Spacing.md }]}>
-            <Text style={styles.sectionTitle}>Monthly Trend</Text>
+            <Text style={styles.sectionTitle}>Tendência Mensal</Text>
             <MonthlyTrendChart data={trend} />
             <View style={styles.trendLegend}>
               <View style={styles.trendLegendItem}>
                 <View
                   style={[styles.trendDot, { backgroundColor: Colors.success }]}
                 />
-                <Text style={styles.trendLegendLabel}>Income</Text>
+                <Text style={styles.trendLegendLabel}>Receitas</Text>
               </View>
               <View style={styles.trendLegendItem}>
                 <View
                   style={[styles.trendDot, { backgroundColor: Colors.danger }]}
                 />
-                <Text style={styles.trendLegendLabel}>Expenses</Text>
+                <Text style={styles.trendLegendLabel}>Despesas</Text>
               </View>
             </View>
           </View>
@@ -539,7 +539,7 @@ export default function ReportsScreen() {
 
         {/* ── Category Breakdown ────────────────────── */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Category Breakdown</Text>
+          <Text style={styles.sectionTitle}>Gastos por Categoria</Text>
 
           {isLoading ? (
             <ActivityIndicator color={Colors.primary} />
@@ -572,7 +572,7 @@ export default function ReportsScreen() {
                 <View style={styles.catInfo}>
                   <Text style={styles.catName}>{cat.categoryName}</Text>
                   <Text style={styles.catPct}>
-                    {cat.pct.toFixed(0)}% of spending
+                    {cat.pct.toFixed(0)}% dos gastos
                   </Text>
                 </View>
                 <Text style={styles.catAmount}>
@@ -587,11 +587,11 @@ export default function ReportsScreen() {
         {ranges.showBudgets && (
           <View style={styles.section}>
             <View style={styles.sectionHeaderRow}>
-              <Text style={styles.sectionTitle}>Budget Tracking</Text>
+              <Text style={styles.sectionTitle}>Controle de Orçamentos</Text>
               <TouchableOpacity
                 onPress={() => router.push("/(app)/budgets" as never)}
               >
-                <Text style={styles.seeAll}>See All</Text>
+                <Text style={styles.seeAll}>Ver todos</Text>
               </TouchableOpacity>
             </View>
 
@@ -599,7 +599,7 @@ export default function ReportsScreen() {
             {!loadingBudgets && budgets.length > 0 && (
               <View style={styles.budgetSummaryRow}>
                 <Text style={styles.budgetSummaryText}>
-                  {formatCurrency(totalBudgetSpent)} spent of{" "}
+                  {formatCurrency(totalBudgetSpent)} gasto de{" "}
                   {formatCurrency(totalBudgeted)} total
                 </Text>
                 <View
@@ -691,7 +691,7 @@ export default function ReportsScreen() {
                     </View>
                     {isOver && (
                       <Text style={styles.overBudgetText}>
-                        Over budget by {formatCurrency(spent - limit)}
+                        Acima do limite por {formatCurrency(spent - limit)}
                       </Text>
                     )}
                   </View>
@@ -705,11 +705,11 @@ export default function ReportsScreen() {
         {activeGoals.length > 0 && (
           <View style={[styles.section, styles.lastSection]}>
             <View style={styles.sectionHeaderRow}>
-              <Text style={styles.sectionTitle}>Goals Progress</Text>
+              <Text style={styles.sectionTitle}>Progresso das Metas</Text>
               <TouchableOpacity
                 onPress={() => router.push("/(app)/goals" as never)}
               >
-                <Text style={styles.seeAll}>See All</Text>
+                <Text style={styles.seeAll}>Ver todos</Text>
               </TouchableOpacity>
             </View>
             {activeGoals.map((goal) => {

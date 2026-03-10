@@ -33,7 +33,7 @@ function AppLayoutInner() {
         <Tabs.Screen
           name="index"
           options={{
-            title: "HOME",
+            title: "INÍCIO",
             tabBarIcon: ({ focused, color }) => (
               <Ionicons
                 name={focused ? "home" : "home-outline"}
@@ -46,7 +46,7 @@ function AppLayoutInner() {
         <Tabs.Screen
           name="transactions/index"
           options={{
-            title: "REPORTS",
+            title: "RELATÓRIOS",
             tabBarIcon: ({ focused, color }) => (
               <Ionicons
                 name={focused ? "bar-chart" : "bar-chart-outline"}
@@ -59,7 +59,7 @@ function AppLayoutInner() {
         <Tabs.Screen
           name="budgets/index"
           options={{
-            title: "BUDGET",
+            title: "ORÇAMENTOS",
             tabBarIcon: ({ focused, color }) => (
               <Ionicons
                 name={focused ? "pie-chart" : "pie-chart-outline"}
@@ -72,7 +72,7 @@ function AppLayoutInner() {
         <Tabs.Screen
           name="goals/index"
           options={{
-            title: "GOALS",
+            title: "METAS",
             tabBarIcon: ({ focused, color }) => (
               <Ionicons
                 name={focused ? "trophy" : "trophy-outline"}
@@ -85,7 +85,7 @@ function AppLayoutInner() {
         <Tabs.Screen
           name="profile/index"
           options={{
-            title: "PROFILE",
+            title: "PERFIL",
             tabBarIcon: ({ focused, color }) => (
               <Ionicons
                 name={focused ? "person" : "person-outline"}

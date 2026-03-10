@@ -283,8 +283,8 @@ export default function BudgetsScreen() {
       {/* Header */}
       <View style={styles.header}>
         <View>
-          <Text style={styles.headerCaption}>Monthly Overview</Text>
-          <Text style={styles.headerTitle}>Budget Status</Text>
+          <Text style={styles.headerCaption}>Visão Mensal</Text>
+          <Text style={styles.headerTitle}>Orçamentos</Text>
         </View>
         <TouchableOpacity
           style={styles.newBtn}
@@ -292,7 +292,7 @@ export default function BudgetsScreen() {
           activeOpacity={0.82}
         >
           <Ionicons name="add" size={16} color={Colors.white} />
-          <Text style={styles.newBtnText}>New Budget</Text>
+          <Text style={styles.newBtnText}>Novo Orçamento</Text>
         </TouchableOpacity>
       </View>
 
@@ -335,7 +335,7 @@ export default function BudgetsScreen() {
                   color={Colors.primary}
                 />
               </View>
-              <Text style={styles.summaryCaption}>TOTAL BUDGETED</Text>
+              <Text style={styles.summaryCaption}>TOTAL ORÇADO</Text>
             </View>
             <Text style={styles.summaryAmount}>
               {formatCurrency(totalBudgeted)}
@@ -371,7 +371,7 @@ export default function BudgetsScreen() {
                   color={totalRemaining < 0 ? Colors.danger : Colors.success}
                 />
               </View>
-              <Text style={styles.summaryCaption}>REMAINING</Text>
+              <Text style={styles.summaryCaption}>RESTANTE</Text>
             </View>
             <Text
               style={[
@@ -406,9 +406,11 @@ export default function BudgetsScreen() {
 
         {/* Section Header */}
         <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Budget Categories</Text>
+          <Text style={styles.sectionTitle}>Categorias de Orçamento</Text>
           {budgets.length > 0 && (
-            <Text style={styles.sectionCount}>{budgets.length} budgets</Text>
+            <Text style={styles.sectionCount}>
+              {budgets.length} orçamento{budgets.length !== 1 ? "s" : ""}
+            </Text>
           )}
         </View>
 

@@ -140,16 +140,17 @@ export default function LoginScreen() {
           </View>
 
           {/* Welcome Text */}
-          <Text style={styles.title}>Welcome to{"\n"}FinanceFlow</Text>
+          <Text style={styles.title}>Bem-vindo ao{"\n"}FinanceFlow</Text>
           <Text style={styles.subtitle}>
-            Your professional and approachable path{"\n"}to financial freedom.
+            Seu caminho profissional e acessível{"\n"}para a liberdade
+            financeira.
           </Text>
 
           {/* Form */}
           <View style={styles.form}>
             {/* Email */}
             <View style={styles.field}>
-              <Text style={styles.label}>Email Address</Text>
+              <Text style={styles.label}>Endereço de E-mail</Text>
               <Controller
                 control={control}
                 name="email"
@@ -168,7 +169,7 @@ export default function LoginScreen() {
                     />
                     <TextInput
                       style={styles.input}
-                      placeholder="name@example.com"
+                      placeholder="nome@exemplo.com"
                       placeholderTextColor={Colors.gray400}
                       keyboardType="email-address"
                       autoCapitalize="none"
@@ -188,9 +189,9 @@ export default function LoginScreen() {
             {/* Password */}
             <View style={styles.field}>
               <View style={styles.labelRow}>
-                <Text style={styles.label}>Password</Text>
+                <Text style={styles.label}>Senha</Text>
                 <TouchableOpacity>
-                  <Text style={styles.forgotLink}>Forgot password?</Text>
+                  <Text style={styles.forgotLink}>Esqueceu a senha?</Text>
                 </TouchableOpacity>
               </View>
               <Controller
@@ -211,7 +212,7 @@ export default function LoginScreen() {
                     />
                     <TextInput
                       style={styles.input}
-                      placeholder="Enter your password"
+                      placeholder="Digite sua senha"
                       placeholderTextColor={Colors.gray400}
                       secureTextEntry
                       autoComplete="password"
@@ -238,14 +239,14 @@ export default function LoginScreen() {
               activeOpacity={0.85}
             >
               <Text style={styles.loginButtonText}>
-                {isSubmitting ? "Logging in..." : "Login"}
+                {isSubmitting ? "Entrando..." : "Entrar"}
               </Text>
             </TouchableOpacity>
 
             {/* Divider */}
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>OR CONTINUE WITH</Text>
+              <Text style={styles.dividerText}>OU CONTINUAR COM</Text>
               <View style={styles.dividerLine} />
             </View>
 
@@ -274,10 +275,10 @@ export default function LoginScreen() {
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>{"Don't have an account? "}</Text>
+            <Text style={styles.footerText}>{"Não tem uma conta? "}</Text>
             <Link href="/(auth)/register" asChild>
               <TouchableOpacity>
-                <Text style={styles.footerLink}>Sign up for free</Text>
+                <Text style={styles.footerLink}>Criar conta grátis</Text>
               </TouchableOpacity>
             </Link>
           </View>

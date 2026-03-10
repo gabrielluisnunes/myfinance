@@ -44,8 +44,8 @@ function formatTxDate(dateStr: string): string {
   const diffDays = Math.round(
     (today.getTime() - txDay.getTime()) / (1000 * 60 * 60 * 24),
   );
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
+  if (diffDays === 0) return "Hoje";
+  if (diffDays === 1) return "Ontem";
   return txDay.toLocaleDateString("pt-BR", { month: "short", day: "numeric" });
 }
 
@@ -116,7 +116,7 @@ export default function DashboardScreen() {
         <TouchableOpacity style={styles.headerBtn} onPress={toggle}>
           <Ionicons name="menu" size={24} color={Colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Dashboard</Text>
+        <Text style={styles.headerTitle}>Início</Text>
         <TouchableOpacity style={styles.headerBtn}>
           <Ionicons
             name="notifications-outline"
@@ -132,7 +132,7 @@ export default function DashboardScreen() {
       >
         {/* Total Balance Card */}
         <View style={styles.balanceCard}>
-          <Text style={styles.balanceLabel}>TOTAL BALANCE</Text>
+          <Text style={styles.balanceLabel}>SALDO TOTAL</Text>
           <Text style={styles.balanceAmount}>
             {formatCurrency(totalBalance)}
           </Text>
@@ -157,7 +157,7 @@ export default function DashboardScreen() {
               ]}
             >
               {monthlyNet >= 0 ? "+" : ""}
-              {formatCurrency(Math.abs(monthlyNet))} this month
+              {formatCurrency(Math.abs(monthlyNet))} este mês
             </Text>
           </View>
         </View>
@@ -173,7 +173,7 @@ export default function DashboardScreen() {
             >
               <Ionicons name="arrow-up" size={18} color={Colors.success} />
             </View>
-            <Text style={styles.monthlyCardLabel}>Monthly Income</Text>
+            <Text style={styles.monthlyCardLabel}>Receitas do Mês</Text>
             <Text style={[styles.monthlyCardAmount, { color: Colors.success }]}>
               {formatCurrency(monthlyIncome)}
             </Text>
@@ -187,7 +187,7 @@ export default function DashboardScreen() {
             >
               <Ionicons name="arrow-down" size={18} color={Colors.danger} />
             </View>
-            <Text style={styles.monthlyCardLabel}>Monthly Expenses</Text>
+            <Text style={styles.monthlyCardLabel}>Gastos do Mês</Text>
             <Text style={[styles.monthlyCardAmount, { color: Colors.danger }]}>
               {formatCurrency(monthlyExpenses)}
             </Text>
@@ -260,11 +260,11 @@ export default function DashboardScreen() {
         {/* Recent Transactions */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Recent Transactions</Text>
+            <Text style={styles.sectionTitle}>Transações Recentes</Text>
             <TouchableOpacity
               onPress={() => router.push("/transactions" as never)}
             >
-              <Text style={styles.sectionLink}>View all</Text>
+              <Text style={styles.sectionLink}>Ver todas</Text>
             </TouchableOpacity>
           </View>
 
@@ -275,7 +275,7 @@ export default function DashboardScreen() {
                 size={40}
                 color={Colors.gray300}
               />
-              <Text style={styles.emptyText}>No transactions yet</Text>
+              <Text style={styles.emptyText}>Nenhuma transação ainda</Text>
             </View>
           ) : (
             recentTxs.data.map((tx) => {

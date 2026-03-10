@@ -27,7 +27,7 @@ const registerSchema = z
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords do not match",
+    message: "As senhas não coincidem",
     path: ["confirmPassword"],
   });
 
@@ -94,7 +94,7 @@ export default function RegisterScreen() {
           >
             <Ionicons name="arrow-back" size={22} color={Colors.textPrimary} />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Create Account</Text>
+          <Text style={styles.headerTitle}>Criar Conta</Text>
           <View style={styles.headerSpacer} />
         </View>
 
@@ -111,17 +111,17 @@ export default function RegisterScreen() {
           </View>
 
           {/* Title */}
-          <Text style={styles.title}>Join FinanceFlow</Text>
+          <Text style={styles.title}>Entre no FinanceFlow</Text>
           <Text style={styles.subtitle}>
-            Secure your financial future and track{"\n"}your wealth in one
-            place.
+            Organize seu futuro financeiro e acompanhe{"\n"}seu patrimônio em um
+            só lugar.
           </Text>
 
           {/* Form */}
           <View style={styles.form}>
             {/* Full Name */}
             <View style={styles.field}>
-              <Text style={styles.label}>Full Name</Text>
+              <Text style={styles.label}>Nome Completo</Text>
               <Controller
                 control={control}
                 name="name"
@@ -140,7 +140,7 @@ export default function RegisterScreen() {
                     />
                     <TextInput
                       style={styles.input}
-                      placeholder="John Doe"
+                      placeholder="João Silva"
                       placeholderTextColor={Colors.gray400}
                       autoCapitalize="words"
                       autoComplete="name"
@@ -158,7 +158,7 @@ export default function RegisterScreen() {
 
             {/* Email */}
             <View style={styles.field}>
-              <Text style={styles.label}>Email Address</Text>
+              <Text style={styles.label}>Endereço de E-mail</Text>
               <Controller
                 control={control}
                 name="email"
@@ -177,7 +177,7 @@ export default function RegisterScreen() {
                     />
                     <TextInput
                       style={styles.input}
-                      placeholder="name@example.com"
+                      placeholder="nome@exemplo.com"
                       placeholderTextColor={Colors.gray400}
                       keyboardType="email-address"
                       autoCapitalize="none"
@@ -196,7 +196,7 @@ export default function RegisterScreen() {
 
             {/* Password */}
             <View style={styles.field}>
-              <Text style={styles.label}>Password</Text>
+              <Text style={styles.label}>Senha</Text>
               <Controller
                 control={control}
                 name="password"
@@ -215,7 +215,7 @@ export default function RegisterScreen() {
                     />
                     <TextInput
                       style={styles.input}
-                      placeholder="Min. 8 characters"
+                      placeholder="Mín. 8 caracteres"
                       placeholderTextColor={Colors.gray400}
                       secureTextEntry={!showPassword}
                       autoComplete="new-password"
@@ -243,7 +243,7 @@ export default function RegisterScreen() {
 
             {/* Confirm Password */}
             <View style={styles.field}>
-              <Text style={styles.label}>Confirm Password</Text>
+              <Text style={styles.label}>Confirmar Senha</Text>
               <Controller
                 control={control}
                 name="confirmPassword"
@@ -262,7 +262,7 @@ export default function RegisterScreen() {
                     />
                     <TextInput
                       style={styles.input}
-                      placeholder="Repeat your password"
+                      placeholder="Repita sua senha"
                       placeholderTextColor={Colors.gray400}
                       secureTextEntry={!showConfirmPassword}
                       autoComplete="new-password"
@@ -313,10 +313,10 @@ export default function RegisterScreen() {
                 )}
               </View>
               <Text style={styles.termsText}>
-                {"I agree to the "}
-                <Text style={styles.termsLink}>Terms of Service</Text>
-                {" and "}
-                <Text style={styles.termsLink}>Privacy Policy</Text>
+                {"Concordo com os "}
+                <Text style={styles.termsLink}>Termos de Serviço</Text>
+                {" e "}
+                <Text style={styles.termsLink}>Política de Privacidade</Text>
               </Text>
             </TouchableOpacity>
 
@@ -331,14 +331,14 @@ export default function RegisterScreen() {
               activeOpacity={0.85}
             >
               <Text style={styles.createButtonText}>
-                {isSubmitting ? "Creating account..." : "Create Account"}
+                {isSubmitting ? "Criando conta..." : "Criar Conta"}
               </Text>
             </TouchableOpacity>
 
             {/* Divider */}
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>OR SIGN UP WITH</Text>
+              <Text style={styles.dividerText}>OU CADASTRE-SE COM</Text>
               <View style={styles.dividerLine} />
             </View>
 
@@ -367,10 +367,10 @@ export default function RegisterScreen() {
 
           {/* Footer */}
           <View style={styles.footer}>
-            <Text style={styles.footerText}>Already have an account? </Text>
+            <Text style={styles.footerText}>Já tem uma conta? </Text>
             <Link href="/(auth)/login" asChild>
               <TouchableOpacity>
-                <Text style={styles.footerLink}>Sign In</Text>
+                <Text style={styles.footerLink}>Entrar</Text>
               </TouchableOpacity>
             </Link>
           </View>

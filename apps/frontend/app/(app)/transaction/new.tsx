@@ -188,7 +188,7 @@ export default function NewTransactionScreen() {
         >
           <Ionicons name="close" size={22} color={Colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Add New Transaction</Text>
+        <Text style={styles.headerTitle}>Nova Transação</Text>
         <View style={{ width: 40 }} />
       </View>
 
@@ -220,7 +220,7 @@ export default function NewTransactionScreen() {
               txType === "EXPENSE" && styles.tabLabelActive,
             ]}
           >
-            Expense
+            Despesa
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -234,7 +234,7 @@ export default function NewTransactionScreen() {
               txType === "INCOME" && styles.tabLabelActive,
             ]}
           >
-            Income
+            Receita
           </Text>
         </TouchableOpacity>
       </View>
@@ -263,7 +263,7 @@ export default function NewTransactionScreen() {
               },
             ]}
           >
-            {txType === "INCOME" ? "↑ INCOME AMOUNT" : "↓ EXPENSE AMOUNT"}
+            {txType === "INCOME" ? "↑ VALOR DA RECEITA" : "↓ VALOR DA DESPESA"}
           </Text>
           <View style={styles.amountRow}>
             <Text
@@ -298,7 +298,7 @@ export default function NewTransactionScreen() {
         </View>
 
         {/* Categories */}
-        <Text style={styles.sectionTitle}>Select Category</Text>
+        <Text style={styles.sectionTitle}>Selecionar Categoria</Text>
         {loadingCategories ? (
           <ActivityIndicator
             color={Colors.primary}
@@ -312,7 +312,7 @@ export default function NewTransactionScreen() {
               color={Colors.textSecondary}
             />
             <Text style={styles.emptyCategoriesText}>
-              No categories found. Add some in Settings.
+              Nenhuma categoria. Adicione nas Configurações.
             </Text>
           </View>
         ) : (
@@ -350,7 +350,7 @@ export default function NewTransactionScreen() {
         )}
 
         {/* Date */}
-        <Text style={styles.sectionTitle}>Date</Text>
+        <Text style={styles.sectionTitle}>Data</Text>
         {Platform.OS === "web" ? (
           <View style={styles.fieldRow}>
             <Ionicons
@@ -414,7 +414,7 @@ export default function NewTransactionScreen() {
         )}
 
         {/* Description */}
-        <Text style={styles.sectionTitle}>Description</Text>
+        <Text style={styles.sectionTitle}>Descrição</Text>
         <View style={styles.fieldRow}>
           <Ionicons
             name="reorder-three-outline"
@@ -423,7 +423,7 @@ export default function NewTransactionScreen() {
           />
           <TextInput
             style={styles.fieldInput}
-            placeholder="What was this for?"
+            placeholder="Para que foi isso?"
             placeholderTextColor={Colors.textSecondary}
             value={description}
             onChangeText={setDescription}
@@ -443,7 +443,7 @@ export default function NewTransactionScreen() {
           {saving ? (
             <ActivityIndicator color={Colors.white} />
           ) : (
-            <Text style={styles.saveBtnText}>Save Transaction</Text>
+            <Text style={styles.saveBtnText}>Salvar Transação</Text>
           )}
         </TouchableOpacity>
       </View>
