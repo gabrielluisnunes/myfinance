@@ -56,19 +56,37 @@ export async function depositToGoal(
   goalId: string,
   input: DepositInput,
 ) {
-  const goal = await prisma.goal.findFirst({ where: { id: goalId, userId } });
+  const [goal, account] = await Promise.all([
+    prisma.goal.findFirst({ where: { id: goalId, userId } }),
+    prisma.account.findFirst({ where: { id: input.accountId, userId } }),
+  ]);
+
   if (!goal) throw { statusCode: 404, message: "Goal not found" };
+  if (!account) throw { statusCode: 404, message: "Account not found" };
+  if (Number(account.balance) < input.amount)
+    throw {
+      statusCode: 400,
+      message: "Saldo insuficiente na conta selecionada",
+    };
 
   const newSaved = Number(goal.savedAmount) + input.amount;
   const reachedTarget = newSaved >= Number(goal.targetAmount);
 
-  return prisma.goal.update({
-    where: { id: goalId },
-    data: {
-      savedAmount: newSaved,
-      status: reachedTarget ? "COMPLETED" : goal.status,
-    },
-  });
+  const [updatedGoal] = await prisma.$transaction([
+    prisma.goal.update({
+      where: { id: goalId },
+      data: {
+        savedAmount: newSaved,
+        status: reachedTarget ? "COMPLETED" : goal.status,
+      },
+    }),
+    prisma.account.update({
+      where: { id: input.accountId },
+      data: { balance: { decrement: input.amount } },
+    }),
+  ]);
+
+  return updatedGoal;
 }
 
 export async function deleteGoal(userId: string, goalId: string) {

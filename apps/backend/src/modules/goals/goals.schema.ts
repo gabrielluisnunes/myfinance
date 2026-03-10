@@ -20,6 +20,7 @@ export const updateGoalSchema = z.object({
 
 export const depositSchema = z.object({
   amount: z.number().positive(),
+  accountId: z.string().uuid(),
 });
 
 export type CreateGoalInput = z.infer<typeof createGoalSchema>;

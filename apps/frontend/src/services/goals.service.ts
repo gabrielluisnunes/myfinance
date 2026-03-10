@@ -50,9 +50,10 @@ export const goalsService = {
     return data.data;
   },
 
-  async deposit(id: string, amount: number): Promise<Goal> {
+  async deposit(id: string, amount: number, accountId: string): Promise<Goal> {
     const { data } = await api.post<{ data: Goal }>(`/goals/${id}/deposit`, {
       amount,
+      accountId,
     });
     return data.data;
   },

@@ -1,4 +1,5 @@
 import { Colors, Radius, Spacing } from "@/constants/theme";
+import { accountsService } from "@/services/accounts.service";
 import type { Goal } from "@/services/goals.service";
 import { goalsService } from "@/services/goals.service";
 import { formatCurrency } from "@/utils/format";
@@ -259,12 +260,19 @@ export default function GoalsScreen() {
 
   // ── Deposit state ─────────────────────────────────────────────────────
   const [depositCents, setDepositCents] = useState(0);
+  const [depositAccountId, setDepositAccountId] = useState<string | null>(null);
 
   // ── Data ──────────────────────────────────────────────────────────────
   const { data: goals = [], isLoading } = useQuery({
     queryKey: ["goals"],
     queryFn: () => goalsService.list(),
   });
+
+  const { data: accounts = [] } = useQuery({
+    queryKey: ["accounts"],
+    queryFn: accountsService.list,
+  });
+  const activeAccounts = accounts.filter((a) => a.isActive);
 
   // ── Derived ───────────────────────────────────────────────────────────
   const activeGoals = goals.filter((g) => g.status === "ACTIVE");
@@ -312,11 +320,18 @@ export default function GoalsScreen() {
   });
 
   const depositMutation = useMutation({
-    mutationFn: () => goalsService.deposit(depositGoal!.id, depositCents / 100),
+    mutationFn: () =>
+      goalsService.deposit(
+        depositGoal!.id,
+        depositCents / 100,
+        depositAccountId!,
+      ),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["goals"] });
+      queryClient.invalidateQueries({ queryKey: ["accounts"] });
       setDepositGoal(null);
       setDepositCents(0);
+      setDepositAccountId(null);
     },
   });
 
@@ -347,6 +362,9 @@ export default function GoalsScreen() {
 
   function openDeposit(goal: Goal) {
     setDepositCents(0);
+    setDepositAccountId(
+      activeAccounts.length === 1 ? activeAccounts[0].id : null,
+    );
     setTimeout(() => setDepositGoal(goal), 0);
   }
 
@@ -632,13 +650,72 @@ export default function GoalsScreen() {
             </View>
             <Numpad onKey={handleDepositKey} />
 
+            {/* Account selector */}
+            <Text style={styles.inputLabel}>Descontar de qual conta</Text>
+            <View style={styles.accountSelectorRow}>
+              {activeAccounts.map((acc) => (
+                <TouchableOpacity
+                  key={acc.id}
+                  style={[
+                    styles.accountChip,
+                    depositAccountId === acc.id && styles.accountChipSelected,
+                  ]}
+                  onPress={() => setDepositAccountId(acc.id)}
+                  activeOpacity={0.75}
+                >
+                  <Ionicons
+                    name="wallet-outline"
+                    size={14}
+                    color={
+                      depositAccountId === acc.id
+                        ? Colors.white
+                        : Colors.textSecondary
+                    }
+                  />
+                  <View style={{ flex: 1 }}>
+                    <Text
+                      style={[
+                        styles.accountChipName,
+                        depositAccountId === acc.id && { color: Colors.white },
+                      ]}
+                      numberOfLines={1}
+                    >
+                      {acc.name}
+                    </Text>
+                    <Text
+                      style={[
+                        styles.accountChipBalance,
+                        depositAccountId === acc.id && {
+                          color: Colors.white + "cc",
+                        },
+                      ]}
+                    >
+                      {formatCurrency(parseFloat(acc.balance))}
+                    </Text>
+                  </View>
+                  {depositAccountId === acc.id && (
+                    <Ionicons
+                      name="checkmark-circle"
+                      size={16}
+                      color={Colors.white}
+                    />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
+
             <TouchableOpacity
               style={[
                 styles.submitBtn,
-                depositCents === 0 && styles.submitBtnDisabled,
+                (depositCents === 0 || !depositAccountId) &&
+                  styles.submitBtnDisabled,
               ]}
               onPress={() => depositMutation.mutate()}
-              disabled={depositCents === 0 || depositMutation.isPending}
+              disabled={
+                depositCents === 0 ||
+                !depositAccountId ||
+                depositMutation.isPending
+              }
               activeOpacity={0.85}
             >
               {depositMutation.isPending ? (
@@ -1086,6 +1163,41 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "700",
     color: Colors.textPrimary,
+  },
+
+  // ── Account selector ─────────────────────────────────────────────────
+  accountSelectorRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+    marginBottom: Spacing.md,
+  },
+  accountChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: Radius.md,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    backgroundColor: Colors.gray50,
+    flex: 1,
+    minWidth: 140,
+  },
+  accountChipSelected: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  accountChipName: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: Colors.textPrimary,
+  },
+  accountChipBalance: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    marginTop: 1,
   },
 
   // ── FAB ──────────────────────────────────────────────────────────────
