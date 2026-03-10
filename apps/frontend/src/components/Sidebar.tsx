@@ -25,33 +25,33 @@ interface MenuItem {
 }
 
 const MENU_ITEMS: MenuItem[] = [
-  { label: "Dashboard", icon: "grid-outline", activeIcon: "grid", route: "/" },
+  { label: "Início", icon: "grid-outline", activeIcon: "grid", route: "/" },
   {
-    label: "Transactions",
+    label: "Transações",
     icon: "receipt-outline",
     activeIcon: "receipt",
     route: "/transactions",
   },
   {
-    label: "Budgets",
+    label: "Orçamentos",
     icon: "analytics-outline",
     activeIcon: "analytics",
     route: "/budgets",
   },
   {
-    label: "Reports",
+    label: "Relatórios",
     icon: "bar-chart-outline",
     activeIcon: "bar-chart",
     route: "/transactions",
   },
   {
-    label: "Financial Goals",
+    label: "Metas Financeiras",
     icon: "flag-outline",
     activeIcon: "flag",
     route: "/goals",
   },
   {
-    label: "Settings",
+    label: "Configurações",
     icon: "settings-outline",
     activeIcon: "settings",
     route: null,
@@ -123,7 +123,7 @@ export function Sidebar({ visible, onClose }: SidebarProps) {
             </View>
             <View>
               <Text style={styles.appName}>FinanceFlow</Text>
-              <Text style={styles.appTagline}>Manage your wealth</Text>
+              <Text style={styles.appTagline}>Gerencie suas finanças</Text>
             </View>
           </View>
         </SafeAreaView>
@@ -172,8 +172,8 @@ export function Sidebar({ visible, onClose }: SidebarProps) {
         {/* Quick Actions */}
         <View style={styles.quickActions}>
           <View style={styles.quickActionsHeader}>
-            <Text style={styles.quickActionsTitle}>Quick Actions</Text>
-            <Text style={styles.expandLabel}>EXPAND</Text>
+            <Text style={styles.quickActionsTitle}>Ações Rápidas</Text>
+            <Text style={styles.expandLabel}>EXPANDIR</Text>
           </View>
           <View style={styles.quickActionRow}>
             <View style={styles.quickActionItem}>
@@ -189,7 +189,7 @@ export function Sidebar({ visible, onClose }: SidebarProps) {
               >
                 <Ionicons name="add" size={22} color={Colors.success} />
               </TouchableOpacity>
-              <Text style={styles.quickActionLabel}>Income</Text>
+              <Text style={styles.quickActionLabel}>Receita</Text>
             </View>
             <View style={styles.quickActionItem}>
               <TouchableOpacity
@@ -204,7 +204,7 @@ export function Sidebar({ visible, onClose }: SidebarProps) {
               >
                 <Ionicons name="remove" size={22} color={Colors.danger} />
               </TouchableOpacity>
-              <Text style={styles.quickActionLabel}>Expense</Text>
+              <Text style={styles.quickActionLabel}>Despesa</Text>
             </View>
             <View style={styles.quickActionItem}>
               <TouchableOpacity
@@ -223,7 +223,7 @@ export function Sidebar({ visible, onClose }: SidebarProps) {
                   color={Colors.primary}
                 />
               </TouchableOpacity>
-              <Text style={styles.quickActionLabel}>Transfer</Text>
+              <Text style={styles.quickActionLabel}>Transferência</Text>
             </View>
           </View>
         </View>

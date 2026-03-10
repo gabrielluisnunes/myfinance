@@ -224,7 +224,7 @@ export default function EditTransactionScreen() {
         >
           <Ionicons name="arrow-back" size={22} color={Colors.textPrimary} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Edit Transaction</Text>
+        <Text style={styles.headerTitle}>Editar Transação</Text>
         <TouchableOpacity
           style={[styles.closeBtn, { backgroundColor: Colors.dangerLight }]}
           onPress={confirmDelete}
@@ -267,7 +267,7 @@ export default function EditTransactionScreen() {
               txType === "EXPENSE" && styles.tabLabelActive,
             ]}
           >
-            Expense
+            Despesa
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -281,7 +281,7 @@ export default function EditTransactionScreen() {
               txType === "INCOME" && styles.tabLabelActive,
             ]}
           >
-            Income
+            Receita
           </Text>
         </TouchableOpacity>
       </View>
@@ -308,7 +308,7 @@ export default function EditTransactionScreen() {
               { color: txType === "INCOME" ? Colors.success : Colors.danger },
             ]}
           >
-            {txType === "INCOME" ? "↑ INCOME AMOUNT" : "↓ EXPENSE AMOUNT"}
+            {txType === "INCOME" ? "↑ VALOR DA RECEITA" : "↓ VALOR DA DESPESA"}
           </Text>
           <View style={styles.amountRow}>
             <Text
@@ -341,7 +341,7 @@ export default function EditTransactionScreen() {
         </View>
 
         {/* Categories */}
-        <Text style={styles.sectionTitle}>Select Category</Text>
+        <Text style={styles.sectionTitle}>Selecionar Categoria</Text>
         {loadingCategories ? (
           <ActivityIndicator
             color={Colors.primary}
@@ -354,7 +354,9 @@ export default function EditTransactionScreen() {
               size={32}
               color={Colors.textSecondary}
             />
-            <Text style={styles.emptyCategoriesText}>No categories found.</Text>
+            <Text style={styles.emptyCategoriesText}>
+              Nenhuma categoria encontrada.
+            </Text>
           </View>
         ) : (
           <View style={styles.categoryGrid}>
@@ -391,7 +393,7 @@ export default function EditTransactionScreen() {
         )}
 
         {/* Date */}
-        <Text style={styles.sectionTitle}>Date</Text>
+        <Text style={styles.sectionTitle}>Data</Text>
         {Platform.OS === "web" ? (
           <View style={styles.fieldRow}>
             <Ionicons
@@ -455,7 +457,7 @@ export default function EditTransactionScreen() {
         )}
 
         {/* Description */}
-        <Text style={styles.sectionTitle}>Description</Text>
+        <Text style={styles.sectionTitle}>Descrição</Text>
         <View style={styles.fieldRow}>
           <Ionicons
             name="reorder-three-outline"
@@ -464,7 +466,7 @@ export default function EditTransactionScreen() {
           />
           <TextInput
             style={styles.fieldInput}
-            placeholder="What was this for?"
+            placeholder="Para que foi isso?"
             placeholderTextColor={Colors.textSecondary}
             value={description}
             onChangeText={setDescription}
@@ -484,7 +486,7 @@ export default function EditTransactionScreen() {
           {saving ? (
             <ActivityIndicator color={Colors.white} />
           ) : (
-            <Text style={styles.saveBtnText}>Save Changes</Text>
+            <Text style={styles.saveBtnText}>Salvar Alterações</Text>
           )}
         </TouchableOpacity>
       </View>
