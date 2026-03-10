@@ -585,7 +585,7 @@ export default function ReportsScreen() {
 
         {/* ── Budget Tracking ────────────────────────── */}
         {ranges.showBudgets && (
-          <View style={[styles.section, styles.lastSection]}>
+          <View style={styles.section}>
             <View style={styles.sectionHeaderRow}>
               <Text style={styles.sectionTitle}>Budget Tracking</Text>
               <TouchableOpacity
