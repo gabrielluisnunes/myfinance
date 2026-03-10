@@ -145,13 +145,16 @@ function Numpad({ onKey }: { onKey: (key: string) => void }) {
 // ─── Goal Card ────────────────────────────────────────────────────────────────
 function GoalCard({
   goal,
-  onPress,
+  onDeposit,
+  onEdit,
 }: {
   goal: Goal;
-  onPress: (g: Goal) => void;
+  onDeposit: (g: Goal) => void;
+  onEdit: (g: Goal) => void;
 }) {
   const target = parseFloat(goal.targetAmount);
   const saved = parseFloat(goal.savedAmount);
+  const remaining = Math.max(0, target - saved);
   const pct = target > 0 ? Math.min((saved / target) * 100, 100) : 0;
   const color = goal.color || Colors.primary;
   const icon = (goal.icon as IoniconName) || "trophy-outline";
@@ -159,11 +162,8 @@ function GoalCard({
   const isCompleted = goal.status === "COMPLETED";
 
   return (
-    <TouchableOpacity
-      style={[styles.card, isCompleted && styles.cardCompleted]}
-      onPress={() => onPress(goal)}
-      activeOpacity={0.82}
-    >
+    <View style={[styles.card, isCompleted && styles.cardCompleted]}>
+      {/* ─ Top row: icon + info + edit icon */}
       <View style={styles.cardTop}>
         <View style={[styles.iconCircle, { backgroundColor: color + "22" }]}>
           <Ionicons name={icon} size={22} color={color} />
@@ -185,21 +185,24 @@ function GoalCard({
             )}
           </View>
           {deadline && (
-            <Text style={styles.cardDeadline}>
-              <Ionicons
-                name="calendar-outline"
-                size={12}
-                color={Colors.textSecondary}
-              />{" "}
-              Prazo: {deadline}
-            </Text>
+            <Text style={styles.cardDeadline}>⏰ Prazo: {deadline}</Text>
           )}
         </View>
-        <View style={styles.cardRight}>
-          <Text style={[styles.cardPct, { color }]}>{Math.round(pct)}%</Text>
-        </View>
+        <TouchableOpacity
+          style={styles.cardEditBtn}
+          onPress={() => onEdit(goal)}
+          activeOpacity={0.7}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Ionicons
+            name="create-outline"
+            size={18}
+            color={Colors.textSecondary}
+          />
+        </TouchableOpacity>
       </View>
 
+      {/* ─ Progress bar */}
       <View style={styles.progressTrack}>
         <View
           style={[
@@ -209,11 +212,30 @@ function GoalCard({
         />
       </View>
 
+      {/* ─ Amounts */}
       <View style={styles.cardAmounts}>
         <Text style={styles.cardSaved}>{formatCurrency(saved)} guardados</Text>
+        <Text style={[styles.cardPct, { color }]}>{Math.round(pct)}%</Text>
         <Text style={styles.cardTarget}>de {formatCurrency(target)}</Text>
       </View>
-    </TouchableOpacity>
+
+      {/* ─ Deposit button */}
+      {!isCompleted && (
+        <TouchableOpacity
+          style={[
+            styles.depositBtn,
+            { borderColor: color + "55", backgroundColor: color + "11" },
+          ]}
+          onPress={() => onDeposit(goal)}
+          activeOpacity={0.75}
+        >
+          <Ionicons name="add-circle-outline" size={16} color={color} />
+          <Text style={[styles.depositBtnText, { color }]}>
+            Adicionar valor · faltam {formatCurrency(remaining)}
+          </Text>
+        </TouchableOpacity>
+      )}
+    </View>
   );
 }
 
@@ -423,19 +445,8 @@ export default function GoalsScreen() {
             <GoalCard
               key={goal.id}
               goal={goal}
-              onPress={(g) => {
-                Alert.alert(g.name, "O que deseja fazer?", [
-                  { text: "Cancelar", style: "cancel" },
-                  {
-                    text: "Depositar",
-                    onPress: () => openDeposit(g),
-                  },
-                  {
-                    text: "Editar",
-                    onPress: () => openEdit(g),
-                  },
-                ]);
-              }}
+              onDeposit={openDeposit}
+              onEdit={openEdit}
             />
           ))
         )}
@@ -509,12 +520,109 @@ export default function GoalsScreen() {
           />
           <View style={styles.sheet}>
             <View style={styles.sheetHandle} />
-            <Text style={styles.sheetTitle}>Depositar</Text>
-            {depositGoal && (
-              <Text style={styles.sheetSubtitle}>{depositGoal.name}</Text>
-            )}
 
-            <Text style={styles.inputLabel}>Valor a depositar</Text>
+            {/* Goal progress header */}
+            {depositGoal &&
+              (() => {
+                const target = parseFloat(depositGoal.targetAmount);
+                const saved = parseFloat(depositGoal.savedAmount);
+                const pct =
+                  target > 0 ? Math.min((saved / target) * 100, 100) : 0;
+                const remaining = Math.max(0, target - saved);
+                const color = depositGoal.color || Colors.primary;
+                const icon =
+                  (depositGoal.icon as IoniconName) || "trophy-outline";
+                // Quick amounts: fixed suggestions + "complete remaining" if applicable
+                const remainingCents = Math.round(remaining * 100);
+                const fixedChips = [50_00, 100_00, 200_00, 500_00].filter(
+                  (v) => v <= remainingCents,
+                );
+                const chips =
+                  remainingCents > 0
+                    ? [...fixedChips, remainingCents].filter(
+                        (v, i, arr) => arr.indexOf(v) === i,
+                      )
+                    : fixedChips;
+                return (
+                  <>
+                    <View style={styles.depositHeader}>
+                      <View
+                        style={[
+                          styles.depositIconCircle,
+                          { backgroundColor: color + "22" },
+                        ]}
+                      >
+                        <Ionicons name={icon} size={26} color={color} />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.sheetTitle} numberOfLines={1}>
+                          {depositGoal.name}
+                        </Text>
+                        <Text style={styles.depositProgressText}>
+                          {formatCurrency(saved)} de {formatCurrency(target)}
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View style={styles.depositProgressTrack}>
+                      <View
+                        style={[
+                          styles.depositProgressFill,
+                          {
+                            width: `${pct}%` as any,
+                            backgroundColor: color,
+                          },
+                        ]}
+                      />
+                    </View>
+                    <Text style={styles.depositRemaining}>
+                      Faltam {formatCurrency(remaining)} para concluir
+                    </Text>
+
+                    {chips.length > 0 && (
+                      <>
+                        <Text style={styles.inputLabel}>Sugestões</Text>
+                        <ScrollView
+                          horizontal
+                          showsHorizontalScrollIndicator={false}
+                          contentContainerStyle={styles.quickAmountsRow}
+                        >
+                          {chips.map((v) => {
+                            const isComplete = v === remainingCents;
+                            const isSelected = depositCents === v;
+                            return (
+                              <TouchableOpacity
+                                key={v}
+                                style={[
+                                  styles.quickChip,
+                                  isSelected && {
+                                    backgroundColor: color,
+                                    borderColor: color,
+                                  },
+                                ]}
+                                onPress={() => setDepositCents(v)}
+                                activeOpacity={0.75}
+                              >
+                                <Text
+                                  style={[
+                                    styles.quickChipText,
+                                    isSelected && { color: Colors.white },
+                                  ]}
+                                >
+                                  {isComplete ? "🎯 " : ""}
+                                  {centsToDisplay(v)}
+                                </Text>
+                              </TouchableOpacity>
+                            );
+                          })}
+                        </ScrollView>
+                      </>
+                    )}
+                  </>
+                );
+              })()}
+
+            <Text style={styles.inputLabel}>Valor personalizado</Text>
             <View style={styles.amountBox}>
               <Text style={styles.amountText}>
                 {centsToDisplay(depositCents)}
@@ -534,7 +642,10 @@ export default function GoalsScreen() {
               {depositMutation.isPending ? (
                 <ActivityIndicator color={Colors.white} />
               ) : (
-                <Text style={styles.submitBtnText}>Depositar</Text>
+                <Text style={styles.submitBtnText}>
+                  Depositar{" "}
+                  {depositCents > 0 ? centsToDisplay(depositCents) : ""}
+                </Text>
               )}
             </TouchableOpacity>
           </View>
@@ -817,7 +928,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   cardCompleted: {
-    opacity: 0.75,
+    opacity: 0.7,
   },
   cardTop: {
     flexDirection: "row",
@@ -840,12 +951,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexWrap: "wrap",
     gap: 6,
+    marginBottom: 2,
   },
   cardName: {
     fontSize: 15,
     fontWeight: "700",
     color: Colors.textPrimary,
     flex: 1,
+  },
+  cardEditBtn: {
+    padding: 4,
+    marginLeft: Spacing.xs,
   },
   completedBadge: {
     flexDirection: "row",
@@ -864,29 +980,28 @@ const styles = StyleSheet.create({
   cardDeadline: {
     fontSize: 12,
     color: Colors.textSecondary,
-    marginTop: 2,
-  },
-  cardRight: {
-    marginLeft: Spacing.sm,
+    marginTop: 1,
   },
   cardPct: {
-    fontSize: 18,
+    fontSize: 12,
     fontWeight: "800",
   },
   progressTrack: {
-    height: 6,
+    height: 8,
     backgroundColor: Colors.gray100,
-    borderRadius: 3,
+    borderRadius: 4,
     overflow: "hidden",
-    marginBottom: 8,
+    marginBottom: Spacing.xs,
   },
   progressFill: {
-    height: 6,
-    borderRadius: 3,
+    height: 8,
+    borderRadius: 4,
   },
   cardAmounts: {
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: Spacing.sm,
   },
   cardSaved: {
     fontSize: 12,
@@ -896,6 +1011,75 @@ const styles = StyleSheet.create({
   cardTarget: {
     fontSize: 12,
     color: Colors.textSecondary,
+  },
+  depositBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 10,
+    borderRadius: Radius.sm,
+    borderWidth: 1.5,
+    marginTop: 2,
+  },
+  depositBtnText: {
+    fontSize: 13,
+    fontWeight: "700",
+  },
+
+  // ── Deposit Modal Header ──────────────────────────────────────────────
+  depositHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
+  },
+  depositIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  depositProgressText: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  depositProgressTrack: {
+    height: 8,
+    backgroundColor: Colors.gray100,
+    borderRadius: 4,
+    overflow: "hidden",
+    marginBottom: 6,
+  },
+  depositProgressFill: {
+    height: 8,
+    borderRadius: 4,
+  },
+  depositRemaining: {
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.sm,
+    textAlign: "right",
+  },
+  quickAmountsRow: {
+    flexDirection: "row",
+    gap: 8,
+    paddingBottom: 4,
+  },
+  quickChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1.5,
+    borderColor: Colors.border,
+    backgroundColor: Colors.gray50,
+  },
+  quickChipText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: Colors.textPrimary,
   },
 
   // ── FAB ──────────────────────────────────────────────────────────────
