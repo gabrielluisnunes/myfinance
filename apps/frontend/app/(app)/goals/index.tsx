@@ -536,174 +536,183 @@ export default function GoalsScreen() {
             style={StyleSheet.absoluteFill}
             onPress={() => setDepositGoal(null)}
           />
-          <View style={styles.sheet}>
+          <View style={[styles.sheet, styles.depositSheet]}>
             <View style={styles.sheetHandle} />
 
-            {/* Goal progress header */}
-            {depositGoal &&
-              (() => {
-                const target = parseFloat(depositGoal.targetAmount);
-                const saved = parseFloat(depositGoal.savedAmount);
-                const pct =
-                  target > 0 ? Math.min((saved / target) * 100, 100) : 0;
-                const remaining = Math.max(0, target - saved);
-                const color = depositGoal.color || Colors.primary;
-                const icon =
-                  (depositGoal.icon as IoniconName) || "trophy-outline";
-                // Quick amounts: fixed suggestions + "complete remaining" if applicable
-                const remainingCents = Math.round(remaining * 100);
-                const fixedChips = [50_00, 100_00, 200_00, 500_00].filter(
-                  (v) => v <= remainingCents,
-                );
-                const chips =
-                  remainingCents > 0
-                    ? [...fixedChips, remainingCents].filter(
-                        (v, i, arr) => arr.indexOf(v) === i,
-                      )
-                    : fixedChips;
-                return (
-                  <>
-                    <View style={styles.depositHeader}>
-                      <View
-                        style={[
-                          styles.depositIconCircle,
-                          { backgroundColor: color + "22" },
-                        ]}
-                      >
-                        <Ionicons name={icon} size={26} color={color} />
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={styles.depositScrollContent}
+            >
+              {/* Goal progress header */}
+              {depositGoal &&
+                (() => {
+                  const target = parseFloat(depositGoal.targetAmount);
+                  const saved = parseFloat(depositGoal.savedAmount);
+                  const pct =
+                    target > 0 ? Math.min((saved / target) * 100, 100) : 0;
+                  const remaining = Math.max(0, target - saved);
+                  const color = depositGoal.color || Colors.primary;
+                  const icon =
+                    (depositGoal.icon as IoniconName) || "trophy-outline";
+                  // Quick amounts: fixed suggestions + "complete remaining" if applicable
+                  const remainingCents = Math.round(remaining * 100);
+                  const fixedChips = [50_00, 100_00, 200_00, 500_00].filter(
+                    (v) => v <= remainingCents,
+                  );
+                  const chips =
+                    remainingCents > 0
+                      ? [...fixedChips, remainingCents].filter(
+                          (v, i, arr) => arr.indexOf(v) === i,
+                        )
+                      : fixedChips;
+                  return (
+                    <>
+                      <View style={styles.depositHeader}>
+                        <View
+                          style={[
+                            styles.depositIconCircle,
+                            { backgroundColor: color + "22" },
+                          ]}
+                        >
+                          <Ionicons name={icon} size={26} color={color} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.sheetTitle} numberOfLines={1}>
+                            {depositGoal.name}
+                          </Text>
+                          <Text style={styles.depositProgressText}>
+                            {formatCurrency(saved)} de {formatCurrency(target)}
+                          </Text>
+                        </View>
                       </View>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.sheetTitle} numberOfLines={1}>
-                          {depositGoal.name}
-                        </Text>
-                        <Text style={styles.depositProgressText}>
-                          {formatCurrency(saved)} de {formatCurrency(target)}
-                        </Text>
-                      </View>
-                    </View>
 
-                    <View style={styles.depositProgressTrack}>
-                      <View
+                      <View style={styles.depositProgressTrack}>
+                        <View
+                          style={[
+                            styles.depositProgressFill,
+                            {
+                              width: `${pct}%` as any,
+                              backgroundColor: color,
+                            },
+                          ]}
+                        />
+                      </View>
+                      <Text style={styles.depositRemaining}>
+                        Faltam {formatCurrency(remaining)} para concluir
+                      </Text>
+
+                      {chips.length > 0 && (
+                        <>
+                          <Text style={styles.inputLabel}>Sugestões</Text>
+                          <View style={styles.quickAmountsWrapper}>
+                            <ScrollView
+                              horizontal
+                              showsHorizontalScrollIndicator={false}
+                              contentContainerStyle={styles.quickAmountsRow}
+                            >
+                              {chips.map((v) => {
+                                const isComplete = v === remainingCents;
+                                const isSelected = depositCents === v;
+                                return (
+                                  <TouchableOpacity
+                                    key={v}
+                                    style={[
+                                      styles.quickChip,
+                                      isSelected && {
+                                        backgroundColor: color,
+                                        borderColor: color,
+                                      },
+                                    ]}
+                                    onPress={() => setDepositCents(v)}
+                                    activeOpacity={0.75}
+                                  >
+                                    <Text
+                                      style={[
+                                        styles.quickChipText,
+                                        isSelected && { color: Colors.white },
+                                      ]}
+                                    >
+                                      {isComplete ? "🎯 " : ""}
+                                      {centsToDisplay(v)}
+                                    </Text>
+                                  </TouchableOpacity>
+                                );
+                              })}
+                            </ScrollView>
+                          </View>
+                        </>
+                      )}
+                    </>
+                  );
+                })()}
+
+              <Text style={styles.inputLabel}>Valor personalizado</Text>
+              <View style={styles.amountBox}>
+                <Text style={styles.amountText}>
+                  {centsToDisplay(depositCents)}
+                </Text>
+              </View>
+              <Numpad onKey={handleDepositKey} />
+
+              {/* Account selector */}
+              <Text style={styles.inputLabel}>Descontar de qual conta</Text>
+              <View style={styles.accountSelectorRow}>
+                {activeAccounts.map((acc) => (
+                  <TouchableOpacity
+                    key={acc.id}
+                    style={[
+                      styles.accountChip,
+                      depositAccountId === acc.id && styles.accountChipSelected,
+                    ]}
+                    onPress={() => setDepositAccountId(acc.id)}
+                    activeOpacity={0.75}
+                  >
+                    <Ionicons
+                      name="wallet-outline"
+                      size={14}
+                      color={
+                        depositAccountId === acc.id
+                          ? Colors.white
+                          : Colors.textSecondary
+                      }
+                    />
+                    <View style={{ flex: 1 }}>
+                      <Text
                         style={[
-                          styles.depositProgressFill,
-                          {
-                            width: `${pct}%` as any,
-                            backgroundColor: color,
+                          styles.accountChipName,
+                          depositAccountId === acc.id && {
+                            color: Colors.white,
                           },
                         ]}
-                      />
+                        numberOfLines={1}
+                      >
+                        {acc.name}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.accountChipBalance,
+                          depositAccountId === acc.id && {
+                            color: Colors.white + "cc",
+                          },
+                        ]}
+                      >
+                        {formatCurrency(parseFloat(acc.balance))}
+                      </Text>
                     </View>
-                    <Text style={styles.depositRemaining}>
-                      Faltam {formatCurrency(remaining)} para concluir
-                    </Text>
-
-                    {chips.length > 0 && (
-                      <>
-                        <Text style={styles.inputLabel}>Sugestões</Text>
-                        <View style={styles.quickAmountsWrapper}>
-                          <ScrollView
-                            horizontal
-                            showsHorizontalScrollIndicator={false}
-                            contentContainerStyle={styles.quickAmountsRow}
-                          >
-                            {chips.map((v) => {
-                              const isComplete = v === remainingCents;
-                              const isSelected = depositCents === v;
-                              return (
-                                <TouchableOpacity
-                                  key={v}
-                                  style={[
-                                    styles.quickChip,
-                                    isSelected && {
-                                      backgroundColor: color,
-                                      borderColor: color,
-                                    },
-                                  ]}
-                                  onPress={() => setDepositCents(v)}
-                                  activeOpacity={0.75}
-                                >
-                                  <Text
-                                    style={[
-                                      styles.quickChipText,
-                                      isSelected && { color: Colors.white },
-                                    ]}
-                                  >
-                                    {isComplete ? "🎯 " : ""}
-                                    {centsToDisplay(v)}
-                                  </Text>
-                                </TouchableOpacity>
-                              );
-                            })}
-                          </ScrollView>
-                        </View>
-                      </>
+                    {depositAccountId === acc.id && (
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={16}
+                        color={Colors.white}
+                      />
                     )}
-                  </>
-                );
-              })()}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
 
-            <Text style={styles.inputLabel}>Valor personalizado</Text>
-            <View style={styles.amountBox}>
-              <Text style={styles.amountText}>
-                {centsToDisplay(depositCents)}
-              </Text>
-            </View>
-            <Numpad onKey={handleDepositKey} />
-
-            {/* Account selector */}
-            <Text style={styles.inputLabel}>Descontar de qual conta</Text>
-            <View style={styles.accountSelectorRow}>
-              {activeAccounts.map((acc) => (
-                <TouchableOpacity
-                  key={acc.id}
-                  style={[
-                    styles.accountChip,
-                    depositAccountId === acc.id && styles.accountChipSelected,
-                  ]}
-                  onPress={() => setDepositAccountId(acc.id)}
-                  activeOpacity={0.75}
-                >
-                  <Ionicons
-                    name="wallet-outline"
-                    size={14}
-                    color={
-                      depositAccountId === acc.id
-                        ? Colors.white
-                        : Colors.textSecondary
-                    }
-                  />
-                  <View style={{ flex: 1 }}>
-                    <Text
-                      style={[
-                        styles.accountChipName,
-                        depositAccountId === acc.id && { color: Colors.white },
-                      ]}
-                      numberOfLines={1}
-                    >
-                      {acc.name}
-                    </Text>
-                    <Text
-                      style={[
-                        styles.accountChipBalance,
-                        depositAccountId === acc.id && {
-                          color: Colors.white + "cc",
-                        },
-                      ]}
-                    >
-                      {formatCurrency(parseFloat(acc.balance))}
-                    </Text>
-                  </View>
-                  {depositAccountId === acc.id && (
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={16}
-                      color={Colors.white}
-                    />
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
-
+            {/* Sticky submit button */}
             <TouchableOpacity
               style={[
                 styles.submitBtn,
@@ -1276,6 +1285,13 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.xxl,
     paddingTop: Spacing.sm,
     maxHeight: "85%",
+  },
+  depositSheet: {
+    maxHeight: "92%",
+    paddingBottom: Spacing.md,
+  },
+  depositScrollContent: {
+    paddingBottom: Spacing.sm,
   },
   sheetTall: {
     maxHeight: "92%",
