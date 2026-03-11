@@ -49,6 +49,18 @@ export const authService = {
     return data.data;
   },
 
+  async updateProfile(payload: { name: string }): Promise<AuthUser> {
+    const { data } = await api.patch<{ data: AuthUser }>("/users/me", payload);
+    return data.data;
+  },
+
+  async changePassword(payload: {
+    currentPassword: string;
+    password: string;
+  }): Promise<void> {
+    await api.patch("/users/me", payload);
+  },
+
   async logout(): Promise<void> {
     await storage.deleteItem("auth_token");
   },

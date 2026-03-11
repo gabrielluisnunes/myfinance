@@ -242,35 +242,6 @@ export default function LoginScreen() {
                 {isSubmitting ? "Entrando..." : "Entrar"}
               </Text>
             </TouchableOpacity>
-
-            {/* Divider */}
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>OU CONTINUAR COM</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            {/* Social Buttons */}
-            <View style={styles.socialRow}>
-              <TouchableOpacity
-                style={styles.socialButton}
-                activeOpacity={0.75}
-              >
-                <Text style={styles.googleG}>G</Text>
-                <Text style={styles.socialText}>Google</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.socialButton}
-                activeOpacity={0.75}
-              >
-                <Ionicons
-                  name="logo-apple"
-                  size={18}
-                  color={Colors.textPrimary}
-                />
-                <Text style={styles.socialText}>Apple</Text>
-              </TouchableOpacity>
-            </View>
           </View>
 
           {/* Footer */}
@@ -397,46 +368,6 @@ const styles = StyleSheet.create({
     fontWeight: Typography.fontWeights.semibold,
     color: Colors.white,
     letterSpacing: 0.3,
-  },
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: Spacing.md,
-  },
-  dividerLine: { flex: 1, height: 1, backgroundColor: Colors.border },
-  dividerText: {
-    fontSize: Typography.fontSizes.xs,
-    color: Colors.textSecondary,
-    marginHorizontal: Spacing.md,
-    fontWeight: Typography.fontWeights.medium,
-    letterSpacing: 0.5,
-  },
-  socialRow: {
-    flexDirection: "row",
-    gap: Spacing.md,
-    marginBottom: Spacing.lg,
-  },
-  socialButton: {
-    flex: 1,
-    height: 48,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    backgroundColor: Colors.surface,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    borderRadius: Radius.md,
-  },
-  googleG: {
-    fontSize: 16,
-    fontWeight: Typography.fontWeights.bold,
-    color: "#4285F4",
-  },
-  socialText: {
-    fontSize: Typography.fontSizes.sm,
-    fontWeight: Typography.fontWeights.medium,
-    color: Colors.textPrimary,
   },
   footer: {
     flexDirection: "row",

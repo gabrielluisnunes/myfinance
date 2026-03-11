@@ -1,72 +1,73 @@
 import { prisma } from "@myfinance/db";
 import bcrypt from "bcryptjs";
+import { validateEmailDomain } from "../../utils/email-validator";
 import type { LoginInput, RegisterInput } from "./auth.schema";
 
 const DEFAULT_CATEGORIES = [
-  // EXPENSE
+  // DESPESA
   {
-    name: "Groceries",
+    name: "Mercado",
     type: "EXPENSE" as const,
     icon: "cart-outline",
     color: "#F59E0B",
   },
   {
-    name: "Dining",
+    name: "Restaurante",
     type: "EXPENSE" as const,
     icon: "restaurant-outline",
     color: "#EF4444",
   },
   {
-    name: "Transport",
+    name: "Transporte",
     type: "EXPENSE" as const,
     icon: "car-outline",
     color: "#6366F1",
   },
   {
-    name: "Shopping",
+    name: "Compras",
     type: "EXPENSE" as const,
     icon: "bag-outline",
     color: "#EC4899",
   },
   {
-    name: "Rent",
+    name: "Aluguel",
     type: "EXPENSE" as const,
     icon: "home-outline",
     color: "#8B5CF6",
   },
   {
-    name: "Health",
+    name: "Saúde",
     type: "EXPENSE" as const,
     icon: "medkit-outline",
     color: "#10B981",
   },
   {
-    name: "Entertainment",
+    name: "Lazer",
     type: "EXPENSE" as const,
     icon: "film-outline",
     color: "#F97316",
   },
   {
-    name: "Bills",
+    name: "Contas",
     type: "EXPENSE" as const,
     icon: "flash-outline",
     color: "#EAB308",
   },
   {
-    name: "Education",
+    name: "Educação",
     type: "EXPENSE" as const,
     icon: "book-outline",
     color: "#3B82F6",
   },
   {
-    name: "Others",
+    name: "Outros",
     type: "EXPENSE" as const,
     icon: "pricetag-outline",
     color: "#6B7280",
   },
-  // INCOME
+  // RECEITA
   {
-    name: "Salary",
+    name: "Salário",
     type: "INCOME" as const,
     icon: "briefcase-outline",
     color: "#10B981",
@@ -78,19 +79,19 @@ const DEFAULT_CATEGORIES = [
     color: "#6366F1",
   },
   {
-    name: "Investment",
+    name: "Investimento",
     type: "INCOME" as const,
     icon: "trending-up-outline",
     color: "#F59E0B",
   },
   {
-    name: "Gift",
+    name: "Presente",
     type: "INCOME" as const,
     icon: "gift-outline",
     color: "#EC4899",
   },
   {
-    name: "Other Income",
+    name: "Outras Receitas",
     type: "INCOME" as const,
     icon: "wallet-outline",
     color: "#6B7280",
@@ -98,6 +99,8 @@ const DEFAULT_CATEGORIES = [
 ];
 
 export async function registerUser(input: RegisterInput) {
+  await validateEmailDomain(input.email);
+
   const existingUser = await prisma.user.findUnique({
     where: { email: input.email },
   });
