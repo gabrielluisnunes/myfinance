@@ -9,10 +9,16 @@ export const jwtPlugin = fp(async (app: FastifyInstance) => {
     throw new Error("JWT_SECRET environment variable is required");
   }
 
+  if (secret.length < 32) {
+    throw new Error(
+      "JWT_SECRET must be at least 32 characters. Generate one with: node -e \"console.log(require('crypto').randomBytes(64).toString('hex'))\"",
+    );
+  }
+
   app.register(fastifyJwt, {
     secret,
     sign: {
-      expiresIn: "7d",
+      expiresIn: "2d",
     },
   });
 });

@@ -23,7 +23,12 @@ const registerSchema = z
   .object({
     name: z.string().min(2, "Nome muito curto"),
     email: z.string().email("E-mail inválido"),
-    password: z.string().min(8, "Mínimo 8 caracteres"),
+    password: z
+      .string()
+      .min(8, "Mínimo 8 caracteres")
+      .regex(/[A-Z]/, "Deve conter ao menos uma letra maiúscula")
+      .regex(/[a-z]/, "Deve conter ao menos uma letra minúscula")
+      .regex(/[0-9]/, "Deve conter ao menos um número"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -215,7 +220,7 @@ export default function RegisterScreen() {
                     />
                     <TextInput
                       style={styles.input}
-                      placeholder="Mín. 8 caracteres"
+                      placeholder="Mín. 8 car., A-Z, a-z, 0-9"
                       placeholderTextColor={Colors.gray400}
                       secureTextEntry={!showPassword}
                       autoComplete="new-password"

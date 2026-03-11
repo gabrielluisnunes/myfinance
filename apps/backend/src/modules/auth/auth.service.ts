@@ -139,21 +139,26 @@ export async function registerUser(input: RegisterInput) {
   return user;
 }
 
+// Pre-computed bcrypt hash used only for constant-time comparison when user is not found.
+// Prevents user enumeration via response-time differences (timing attack mitigation).
+const DUMMY_HASH =
+  "$2b$12$LZp3a4FexM9kBzlUJYstJ.CK0KJCxP4nOBT3GkBN4t2mVNEQ0FzAi";
+
 export async function validateCredentials(input: LoginInput) {
   const user = await prisma.user.findUnique({
     where: { email: input.email },
+    select: { id: true, name: true, email: true, passwordHash: true },
   });
 
-  if (!user) {
-    throw { statusCode: 401, message: "Invalid credentials" };
-  }
-
+  // Always run bcrypt.compare regardless of whether the user exists.
+  // Comparing against DUMMY_HASH when user is absent keeps response time
+  // constant, preventing attackers from enumerating valid email addresses.
   const isPasswordValid = await bcrypt.compare(
     input.password,
-    user.passwordHash,
+    user?.passwordHash ?? DUMMY_HASH,
   );
 
-  if (!isPasswordValid) {
+  if (!user || !isPasswordValid) {
     throw { statusCode: 401, message: "Invalid credentials" };
   }
 
